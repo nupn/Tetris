@@ -3,25 +3,12 @@
 #include <process.h>
 #include <winsock2.h>
 #include <Windows.h>
+#include <vector>
+#include "WorkThread.h"
+#include "Structs.h"
 #pragma comment(lib, "ws2_32.lib")
 
-#define BUF_SIZE 100
-#define READ 3
-#define WRITE 5
-
-typedef struct
-{
-	SOCKET hClntSock;
-	SOCKADDR_IN clntAdr;
-} PER_HANDLE_DATA, * LPPER_HANDLE_DATA;
-
-typedef struct
-{    
-	OVERLAPPED overlapped;
-	WSABUF	wsaBuf;
-	char buffer[BUF_SIZE];
-	int rwMode;
-} PER_IO_DATA, *LPPER_IO_DATA;
+using namespace std;
 
 unsigned int __stdcall EchoThreadMain(LPVOID CompletionPortIO);
 void ErrorHandling(char *message);
@@ -46,10 +33,14 @@ int main(int argc, char* argv[])
 	hComPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 	GetSystemInfo(&sysInfo);
 
-	for (i = 0; i < sysInfo.dwNumberOfProcessors; i++)
+	vector<WorkThread> vecWorkThread;
+	vecWorkThread.resize(sysInfo.dwNumberOfProcessors);
+
+	for (auto& workThread : vecWorkThread)
 	{
-		_beginthreadex(NULL, 0, EchoThreadMain, (LPVOID)hComPort, 0, NULL);
+		workThread.Proc(hComPort);
 	}
+
 
 	hServSock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	memset(&servAdr, 0, sizeof(servAdr));
