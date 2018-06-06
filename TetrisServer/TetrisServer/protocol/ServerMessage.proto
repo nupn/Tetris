@@ -1,0 +1,28 @@
+package ServerMessage;
+
+enum MessageType {
+    LOGIN = 0;
+    CHAT = 1;
+    MOVE = 2;
+}
+
+message Login {
+    required int32 id = 1;
+    required string name = 2;
+}
+
+message Chat {
+    required string name = 1;
+    required int32 dst_id = 2;
+    required string message = 3;
+}
+
+message Move {
+    required int32 id = 1;
+  
+    message Position {
+        required float x = 1;
+        required float y = 2;
+    }
+    repeated Position track = 2;
+}

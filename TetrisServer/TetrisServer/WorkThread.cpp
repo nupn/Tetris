@@ -1,5 +1,8 @@
-#include "WorkThread.h"
+
+#include "stdafx.h"
 #include "Structs.h"
+#include "WorkThread.h"
+#include "Protocol.h"
 
 WorkThread::WorkThread()
 {
@@ -13,50 +16,46 @@ WorkThread::~WorkThread()
 
 void WorkThread::Proc(HANDLE hComPort)
 {
-	m_pthread.reset(new thread(
-		[] (HANDLE hCom) {
-		SOCKET sock;
-		DWORD bytesTrans;
-		LPPER_HANDLE_DATA handleInfo;
-		LPPER_IO_DATA ioInfo;
-		DWORD flags = 0;
-
-		while (1)
-		{
-			GetQueuedCompletionStatus(hCom, &bytesTrans, (LPDWORD)&handleInfo, (LPOVERLAPPED*)&ioInfo, INFINITE);
-			sock = handleInfo->hClntSock;
-
-			if (ioInfo->rwMode == READ)
-			{
-				puts("message received!");
-				if (bytesTrans == 0)
-				{
-					closesocket(sock);
-					free(handleInfo);
-					free(ioInfo);
-					continue;
-				}
-
-				memset(&(ioInfo->overlapped), 0, sizeof(OVERLAPPED));
-				ioInfo->wsaBuf.len = bytesTrans;
-				ioInfo->rwMode = WRITE;
-				WSASend(sock, &(ioInfo->wsaBuf), 1, NULL, 0, &(ioInfo->overlapped), NULL);
-
-				ioInfo = (LPPER_IO_DATA)malloc(sizeof(PER_IO_DATA));
-				memset(&(ioInfo->overlapped), 0, sizeof(OVERLAPPED));
-				ioInfo->wsaBuf.len = BUF_SIZE;
-				ioInfo->wsaBuf.buf = ioInfo->buffer;
-				ioInfo->rwMode = READ;
-				WSARecv(sock, &(ioInfo->wsaBuf), 1, NULL, &flags, &(ioInfo->overlapped), NULL);
-
-			}
-			else
-			{
-				puts("messager  send!");
-				free(ioInfo);
-			}
-		}
-	}, hComPort));
+	m_pthread.reset(new thread(&WorkThread::Run, this, hComPort));
 
 	//worker.join();
+}
+
+void WorkThread::Run(HANDLE hComPort)
+{
+	const ClientSocketPool& socketPoolref = boost::serialization::singleton<ClientSocketPool>::get_const_instance();
+	PacketHandler& packetHandler = boost::serialization::singleton<PacketHandler>::get_mutable_instance();
+
+
+
+	while (1)
+	{
+		DWORD bytesTrans;
+		DWORD iocpKey;
+		DWORD flags = 0;
+
+		OVERLAPPEDEX* pOverlappedEx;
+		int ret = GetQueuedCompletionStatus(hComPort, &bytesTrans, (LPDWORD)&iocpKey, (LPOVERLAPPED*)pOverlappedEx, INFINITE);
+		if (ret != 1)
+		{
+			printf("Invalid ret %d\n", ret);
+			continue;
+		}
+
+		//ClientSocket* socket = socketPoolref.GetSocket(sock);
+
+		ClientSocket* socket = socketPoolref.GetSocket(iocpKey);
+
+		if (pOverlappedEx->nRwMode == ClientSocket::READ_SOCKET)
+		{
+			socket->OnReceiveComplete(bytesTrans);
+			socket->GetPacket(packetHandler);
+			socket->OnReceive();
+		}
+		else if (pOverlappedEx->nRwMode == ClientSocket::WRITE_SOCKET)
+		{
+			socket->OnSendComplete();
+			socket->FlushPacket();
+		}
+	}
 }

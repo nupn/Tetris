@@ -1,25 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <process.h>
-#include <winsock2.h>
-#include <Windows.h>
-#include <vector>
+#include "stdafx.h"
 #include "WorkThread.h"
 #include "Structs.h"
-#pragma comment(lib, "ws2_32.lib")
-
-using namespace std;
+#include "Constants.h"
+#include "ClientSocket.h"
+#include "ClientSocketPool.h"
 
 unsigned int __stdcall EchoThreadMain(LPVOID CompletionPortIO);
 void ErrorHandling(char *message);
 
 int main(int argc, char* argv[])
 {
+	SetConsoleTitle(L"TetrisServer");
+
+	ClientSocketPool& socketPoolref = boost::serialization::singleton<ClientSocketPool>::get_mutable_instance();
+	
 	WSADATA wsaData;
 	HANDLE hComPort;
 	SYSTEM_INFO sysInfo;
-	LPPER_IO_DATA ioInfo;
-	LPPER_HANDLE_DATA handleInfo;
 
 	SOCKET hServSock;
 	SOCKADDR_IN servAdr;
@@ -42,14 +39,26 @@ int main(int argc, char* argv[])
 	}
 
 
-	hServSock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	hServSock = WSASocket(PF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (hServSock == INVALID_SOCKET)
+	{
+		ErrorHandling("WSASocket() error!");
+	}
+
 	memset(&servAdr, 0, sizeof(servAdr));
 	servAdr.sin_family = AF_INET;
 	servAdr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servAdr.sin_port = htons(atoi(argv[1]));
 
-	bind(hServSock, (SOCKADDR*)&servAdr, sizeof(servAdr));
-	listen(hServSock, 5);
+	if (::bind(hServSock, (SOCKADDR*)&servAdr, sizeof(servAdr)) == -1)
+	{
+		ErrorHandling("bind() error!");
+	}
+
+	if (listen(hServSock, 5) == -1)
+	{
+		ErrorHandling("listen() error!");
+	}
 
 	while (1)
 	{
@@ -58,18 +67,25 @@ int main(int argc, char* argv[])
 		int addrLen = sizeof(clntAdr);
 
 		hClntSock = accept(hServSock, (SOCKADDR*)&clntAdr, &addrLen);
-		handleInfo = (LPPER_HANDLE_DATA)malloc(sizeof(PER_HANDLE_DATA));
-		handleInfo->hClntSock = hClntSock;
-		memcpy(&(handleInfo->clntAdr), &clntAdr, addrLen);
+		if (hClntSock == INVALID_SOCKET)
+		{  
+			int nErrorCode = WSAGetLastError();
+			printf("Error %d", nErrorCode);
+			ErrorHandling("accept() error!");
+		}
 
-		CreateIoCompletionPort((HANDLE)hClntSock, hComPort, (DWORD)handleInfo, 0);
+		ClientSocket* pSocket = socketPoolref.CreateSocket();
+		pSocket->hClntSock = hClntSock;
+		memcpy(&(pSocket->clntAdr), &clntAdr, addrLen);
+		memset(&(pSocket->recvOoverlapped), 0, sizeof(OVERLAPPED));
 
-		ioInfo = (LPPER_IO_DATA)malloc(sizeof(PER_IO_DATA));
-		memset(&(ioInfo->overlapped), 0, sizeof(OVERLAPPED));
-		ioInfo->wsaBuf.len = BUF_SIZE;
-		ioInfo->wsaBuf.buf = ioInfo->buffer;
-		ioInfo->rwMode = READ;
-		WSARecv(handleInfo->hClntSock, &(ioInfo->wsaBuf), 1, &recvBytes, &flags, &(ioInfo->overlapped), NULL);
+		CreateIoCompletionPort((HANDLE)pSocket->hClntSock, hComPort, pSocket->m_dwIOCPKey, 0);
+
+		pSocket->recvWsaBuf.len = BUF_SIZE;
+		pSocket->recvWsaBuf.buf = pSocket->recvbuffer;
+		printf("New Connect\n");
+
+		WSARecv(pSocket->hClntSock, &(pSocket->recvWsaBuf), 1, &recvBytes, &flags, &(pSocket->recvOoverlapped), NULL);
 	}
 
 	return 0;

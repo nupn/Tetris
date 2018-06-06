@@ -1,6 +1,5 @@
 #pragma once
 #include "Constants.h"
-#include <winsock2.h>
 
 typedef struct
 {

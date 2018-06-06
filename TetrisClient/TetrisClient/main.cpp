@@ -3,21 +3,39 @@
 #include <process.h>
 #include <winsock2.h>
 #include <Windows.h>
+#include <thread>
+#include <boost/asio.hpp>
+#include <boost/bind/bind.hpp>
+#include <iostream>
 #pragma comment(lib, "ws2_32.lib")
 
 #define BUF_SIZE 100
+using namespace std;
 
 void ErrorHandling(char *message);
 
+class TestCls
+{
+public:
+	TestCls() {};
+	~TestCls() {};
+
+	char data[512];
+
+	void OnData(const boost::system::error_code& err, std::size_t bytes_transferred)
+	{
+
+		printf("Message from server : [%d]%s\n", bytes_transferred, data);
+	}
+
+};
 
 int main(int argc, char *argv[])
 {
 	WSADATA wsaData;
 	SOCKET hSocket;
 	SOCKADDR_IN servAdr;
-	char message[BUF_SIZE];
-	int strLen, readLen;
-
+	
 	if (argc != 3)
 	{
 		printf("usage : %s ", argv[0]);
@@ -50,30 +68,49 @@ int main(int argc, char *argv[])
 		puts("connected.......");
 	}
 
-	while (1)
-	{
-		fputs("InputMessage q To quit) : ", stdout);
-		fgets(message, BUF_SIZE, stdin);
-		if (!strcmp(message, "q\n") || !strcmp(message, "Q\n"))
-		{
-			break;
-		}
-
-		strLen = strlen(message);
-		send(hSocket, message, strLen, 0);
-		readLen = 0;
+	std::thread thread1([&hSocket]()->void {
 		while (1)
 		{
-			readLen += recv(hSocket, &message[readLen], BUF_SIZE - 1, 0);
-			if (readLen >= strLen)
-			{
-				break;
-			}
-		}
 
-		message[strLen] = 0;
-		printf("Message from server : %s", message);
-	}
+			int strLen = 0;
+			int readLen = 0;
+			char message[BUF_SIZE];
+			while ((readLen = recv(hSocket, &message[readLen], BUF_SIZE - 1, 0)) == 0)
+			{
+			}
+			
+			message[readLen] = '\n';
+			message[readLen + 1] = 0;
+			//cout << "From : " << message << endl;
+			fputs("FromServer : ", stdout);
+			fputs(message, stdout);
+			fputs("\n", stdout);
+
+			fputs("InputMessage : ", stdout);
+		}
+	});
+
+	std::thread thread2([&hSocket]()->void {
+		while (1)
+		{
+			int strLen = 0;
+			int readLen = 0;
+			char message[BUF_SIZE];
+
+			//fputs("InputMessage q To quit) : ", stdout);
+			//fgets(message, BUF_SIZE, stdin);
+			//cout << "InputMessage : ";
+			//cin >> message;
+			fgets(message, BUF_SIZE, stdin);
+
+			strLen = strlen(message);
+			send(hSocket, message, strLen, 0);
+		}
+	});
+
+	thread2.join();
+	thread1.join();
+
 
 
 	closesocket(hSocket);
