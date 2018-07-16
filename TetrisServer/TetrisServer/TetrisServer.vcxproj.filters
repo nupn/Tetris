@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Protocol">
+      <UniqueIdentifier>{0fe0a7d9-8b9e-4f06-aadb-ad7d787f4e7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -42,6 +45,12 @@
     <ClCompile Include="Protocol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LobbySession.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol\ServerMessage.pb.cc">
+      <Filter>Source Files\Protocol</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WorkThread.h">
@@ -67,6 +76,12 @@
     </ClInclude>
     <ClInclude Include="Protocol.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LobbySession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol\ServerMessage.pb.h">
+      <Filter>Source Files\Protocol</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

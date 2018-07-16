@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 	{
 		ErrorHandling("WSAStartup() error!");
+			
 	}
 
 	hComPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
@@ -83,9 +84,10 @@ int main(int argc, char* argv[])
 
 		pSocket->recvWsaBuf.len = BUF_SIZE;
 		pSocket->recvWsaBuf.buf = pSocket->recvbuffer;
+		pSocket->recvOoverlapped.nRwMode = ClientSocket::READ_SOCKET;
 		printf("New Connect\n");
 
-		WSARecv(pSocket->hClntSock, &(pSocket->recvWsaBuf), 1, &recvBytes, &flags, &(pSocket->recvOoverlapped), NULL);
+		WSARecv(pSocket->hClntSock, &(pSocket->recvWsaBuf), 1, &recvBytes, &flags, (OVERLAPPED*)(&pSocket->recvOoverlapped), NULL);
 	}
 
 	return 0;

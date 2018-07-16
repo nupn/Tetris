@@ -1,23 +1,25 @@
 #pragma once
 
-
+#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
+#include "protocol\ServerMessage.pb.h"
+class ClientSocket;
 
 struct MessageHeader
 {
-	protobuf::uint32 size;
+	google::protobuf::uint32 size;
 	ServerMessage::MessageType type;
 };
 
 class PacketHandler
 {
 public:
-	void Handle(const ServerMessage::Login& message) const
+	virtual void Handle(const ServerMessage::Login& message, ClientSocket* pSocket)
 	{
 	}
-	void Handle(const ServerMessage::Chat& message) const
+	virtual void Handle(const ServerMessage::Chat& message, ClientSocket* pSocket)
 	{
 	}
-	void Handle(const ServerMessage::Move& message) const
+	virtual void Handle(const ServerMessage::Move& message, ClientSocket* pSocket)
 	{
 	}
 };

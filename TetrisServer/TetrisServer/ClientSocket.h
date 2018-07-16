@@ -2,13 +2,15 @@
 #include "NPCMemoryPool/NPCMemoryPool.h"
 #include "Structs.h"
 #include "PacketBase.h"
+#include "Protocol.h"
 #include <functional>
 
 using namespace NPCL;
 
 
-struct OVERLAPPEDEX : public OVERLAPPED
+struct OVERLAPPEDEX
 {
+	OVERLAPPED overlapped;
 	int nRwMode;
 };
 
@@ -35,7 +37,7 @@ public:
 
 	void OnReceive();
 	void OnReceiveComplete(int nReceiveBype);
-	void GetPacket(PacketHandler& pPacketHandle);
+	void GetPacket(PacketHandler* pPacketHandle);
 
 private:
 void __SendPacket();

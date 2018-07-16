@@ -31,8 +31,8 @@ void ClientSocket::PutPacket(ServerMessage::MessageType packetType, ::protobuf::
 		return;
 	}
 
-	int nPacketSize = message->ByteSize();
-	if (nSendBuffUsed + message->ByteSize() > BUF_SIZE)
+	int nPacketSize = message->ByteSize() + MessageHeaderSize;
+	if (nSendBuffUsed + nPacketSize > BUF_SIZE)
 	{
 		//User Reserve
 		return;
@@ -43,12 +43,12 @@ void ClientSocket::PutPacket(ServerMessage::MessageType packetType, ::protobuf::
 
 
 	MessageHeader messageHeader;
-	messageHeader.size = nPacketSize;
+	messageHeader.size = message->ByteSize();
 	messageHeader.type = packetType;
 	output_coded_stream.WriteRaw(&messageHeader, sizeof(MessageHeader));
 
 	message->SerializeToCodedStream(&output_coded_stream);
-	nSendBuffUsed += message->ByteSize();
+	nSendBuffUsed += nPacketSize;
 }
 
 
@@ -90,7 +90,7 @@ void ClientSocket::__SendPacket()
 	sendWsaBuf.buf = sendbuffer;
 	
 	DWORD sendCompleteCnt;
-	int retSend = ::WSASend(hClntSock, &(sendWsaBuf), 1, &(sendCompleteCnt), 0, &(sendOverlapped), NULL);
+	int retSend = ::WSASend(hClntSock, &(sendWsaBuf), 1, &(sendCompleteCnt), 0, (OVERLAPPED*)(&sendOverlapped), NULL);
 	if (retSend == 0)
 	{
 
@@ -119,9 +119,12 @@ void ClientSocket::__SendPacket()
 
 void ClientSocket::OnSendComplete()
 {
-	int nPrevSend = nSendBuffUsed;
-	::memmove(sendbuffer, sendbuffer + sendOverlapped.InternalHigh, nSendBuffUsed - sendOverlapped.InternalHigh);
-	nSendBuffUsed -= sendOverlapped.InternalHigh;
+	if (nSendBuffReserved > 0)
+	{
+		int nPrevSend = nSendBuffReserved;
+		::memmove(sendbuffer, sendbuffer + sendOverlapped.overlapped.InternalHigh, nSendBuffUsed - sendOverlapped.overlapped.InternalHigh);
+		nSendBuffReserved -= sendOverlapped.overlapped.InternalHigh;
+	}
 }
 
 
@@ -137,7 +140,7 @@ void ClientSocket::OnReceive()
 	sendWsaBuf.len = BUF_SIZE;
 	sendWsaBuf.buf = recvbuffer;
 
-	::WSARecv(hClntSock, &(sendWsaBuf), 1, NULL, &flags, &(recvOoverlapped), NULL);
+	::WSARecv(hClntSock, &(sendWsaBuf), 1, NULL, &flags, (OVERLAPPED*)(&recvOoverlapped), NULL);
 }
 
 
@@ -147,9 +150,14 @@ void ClientSocket::OnReceiveComplete(int nReceiveBype)
 }
 
 //http://egloos.zum.com/javawork/v/2726467
-void ClientSocket::GetPacket(PacketHandler& pPacketHandle)
+void ClientSocket::GetPacket(PacketHandler* pPacketHandle)
 {
-	protobuf::io::ArrayInputStream input_array_stream(sendWsaBuf.buf, nRecvBufferUsed);
+	if (pPacketHandle == nullptr)
+	{
+		return;
+	}
+
+	protobuf::io::ArrayInputStream input_array_stream(recvWsaBuf.buf, nRecvBufferUsed);
 	protobuf::io::CodedInputStream input_coded_stream(&input_array_stream);
 
 	MessageHeader messageHeader;
@@ -176,15 +184,16 @@ void ClientSocket::GetPacket(PacketHandler& pPacketHandle)
 				ServerMessage::Login message;
 				if (false == message.ParseFromCodedStream(&payload_input_stream))
 					break;
-				pPacketHandle.Handle(message);
+				pPacketHandle->Handle(message, this);
 			}
 			break;
+
 			case ServerMessage::CHAT:
 			{
 				ServerMessage::Chat message;
 				if (false == message.ParseFromCodedStream(&payload_input_stream))
 					break;
-				pPacketHandle.Handle(message);
+				pPacketHandle->Handle(message, this);
 			}
 			break;
 			case ServerMessage::MOVE:
@@ -192,7 +201,7 @@ void ClientSocket::GetPacket(PacketHandler& pPacketHandle)
 				ServerMessage::Move message;
 				if (false == message.ParseFromCodedStream(&payload_input_stream))
 					break;
-				pPacketHandle.Handle(message);
+				pPacketHandle->Handle(message, this);
 			}
 			break;
 		}

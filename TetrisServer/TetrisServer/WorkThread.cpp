@@ -3,6 +3,7 @@
 #include "Structs.h"
 #include "WorkThread.h"
 #include "Protocol.h"
+#include "LobbySession.h"
 
 WorkThread::WorkThread()
 {
@@ -24,8 +25,8 @@ void WorkThread::Proc(HANDLE hComPort)
 void WorkThread::Run(HANDLE hComPort)
 {
 	const ClientSocketPool& socketPoolref = boost::serialization::singleton<ClientSocketPool>::get_const_instance();
-	PacketHandler& packetHandler = boost::serialization::singleton<PacketHandler>::get_mutable_instance();
-
+	//LobbySession& packetHandler = boost::serialization::singleton<LobbySession>::get_mutable_instance();
+	LobbySession* pPacketHandler = new LobbySession;
 
 
 	while (1)
@@ -35,7 +36,7 @@ void WorkThread::Run(HANDLE hComPort)
 		DWORD flags = 0;
 
 		OVERLAPPEDEX* pOverlappedEx;
-		int ret = GetQueuedCompletionStatus(hComPort, &bytesTrans, (LPDWORD)&iocpKey, (LPOVERLAPPED*)pOverlappedEx, INFINITE);
+		int ret = GetQueuedCompletionStatus(hComPort, &bytesTrans, (LPDWORD)&iocpKey, (LPOVERLAPPED*)&pOverlappedEx, INFINITE);
 		if (ret != 1)
 		{
 			printf("Invalid ret %d\n", ret);
@@ -49,7 +50,7 @@ void WorkThread::Run(HANDLE hComPort)
 		if (pOverlappedEx->nRwMode == ClientSocket::READ_SOCKET)
 		{
 			socket->OnReceiveComplete(bytesTrans);
-			socket->GetPacket(packetHandler);
+			socket->GetPacket(pPacketHandler);
 			socket->OnReceive();
 		}
 		else if (pOverlappedEx->nRwMode == ClientSocket::WRITE_SOCKET)

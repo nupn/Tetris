@@ -7,10 +7,21 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <iostream>
+#include <google/protobuf/io/zero_copy_stream_impl_lite.h>
+#include "ServerMessage.pb.h"
+
 #pragma comment(lib, "ws2_32.lib")
 
-#define BUF_SIZE 100
+#define BUF_SIZE 512
 using namespace std;
+using namespace google;
+
+struct MessageHeader
+{
+	google::protobuf::uint32 size;
+	ServerMessage::MessageType type;
+};
+const int MessageHeaderSize = sizeof(MessageHeader);
 
 void ErrorHandling(char *message);
 
@@ -67,44 +78,119 @@ int main(int argc, char *argv[])
 	{
 		puts("connected.......");
 	}
-
+	/**/
 	std::thread thread1([&hSocket]()->void {
 		while (1)
 		{
 
 			int strLen = 0;
 			int readLen = 0;
+			int nTotalLen = 0;
 			char message[BUF_SIZE];
-			while ((readLen = recv(hSocket, &message[readLen], BUF_SIZE - 1, 0)) == 0)
+			while ((readLen = recv(hSocket, message, BUF_SIZE - 1, 0)) == 0)
 			{
 			}
 			
-			message[readLen] = '\n';
-			message[readLen + 1] = 0;
 			//cout << "From : " << message << endl;
-			fputs("FromServer : ", stdout);
-			fputs(message, stdout);
-			fputs("\n", stdout);
 
-			fputs("InputMessage : ", stdout);
+
+			
+			protobuf::io::ArrayInputStream input_array_stream(message, readLen);
+			protobuf::io::CodedInputStream input_coded_stream(&input_array_stream);
+
+			MessageHeader messageHeader;
+			if (input_coded_stream.ReadRaw(&messageHeader, MessageHeaderSize))
+			{
+				const void* payload_ptr = NULL;
+				int remainSize = 0;
+				input_coded_stream.GetDirectBufferPointer(&payload_ptr, &remainSize);
+				if (remainSize < (signed)messageHeader.size)
+				{
+					return;
+				}
+
+				protobuf::io::ArrayInputStream payload_array_stream(payload_ptr, messageHeader.size);
+				protobuf::io::CodedInputStream payload_input_stream(&payload_array_stream);
+
+				if (messageHeader.type == ServerMessage::CHAT)
+				{
+
+					ServerMessage::Chat recvMessage;
+					if (false == recvMessage.ParseFromCodedStream(&payload_input_stream))
+						break;
+
+					printf("From : %s", recvMessage.message().c_str());
+				}
+
+			}
 		}
 	});
 
 	std::thread thread2([&hSocket]()->void {
+		char* messageBuf = new char[BUF_SIZE];
+		char message[BUF_SIZE];
+
 		while (1)
 		{
 			int strLen = 0;
 			int readLen = 0;
-			char message[BUF_SIZE];
+			
 
 			//fputs("InputMessage q To quit) : ", stdout);
 			//fgets(message, BUF_SIZE, stdin);
 			//cout << "InputMessage : ";
 			//cin >> message;
-			fgets(message, BUF_SIZE, stdin);
 
+			
+			fgets(message, BUF_SIZE, stdin);
 			strLen = strlen(message);
-			send(hSocket, message, strLen, 0);
+			
+			ServerMessage::Chat sendMessage;
+			sendMessage.set_dst_id(10);
+			sendMessage.set_name("aas");
+			sendMessage.set_message(message);
+
+
+
+			MessageHeader messageHeader;
+			messageHeader.size = sendMessage.ByteSize();
+			messageHeader.type = ServerMessage::CHAT;
+
+			int nLen = MessageHeaderSize + sendMessage.ByteSize();
+			protobuf::io::ArrayOutputStream  output_array_stream(messageBuf, nLen);
+			protobuf::io::CodedOutputStream output_coded_stream(&output_array_stream);
+			output_coded_stream.WriteRaw(&messageHeader, MessageHeaderSize);
+
+			sendMessage.SerializeToCodedStream(&output_coded_stream);
+			
+
+			/*
+			WSABUF* pBuf = (WSABUF*)malloc(sizeof(WSABUF));
+			memset(pBuf, 0, sizeof(WSABUF));
+			pBuf->buf = messageBuf;
+			pBuf->len = sendMessage.ByteSize();
+
+			OVERLAPPED* lpo = (OVERLAPPED*)malloc(sizeof(OVERLAPPED));
+			memset(pBuf, 0, sizeof(OVERLAPPED));
+
+			int nRet = WSASend(hSocket, pBuf, 1, NULL, 0, lpo, NULL);
+			DWORD dword = ::GetLastError();
+			printf("%d %d\n", nRet, dword);
+			*/
+			
+			
+			//if (nLen != output_coded_stream.ByteCount())
+			{
+				printf("SendBytes : %d %d\n", nLen, output_coded_stream.ByteCount());
+			}
+			int nRet = send(hSocket, messageBuf, nLen, 0);
+			//int nRet = send(hSocket, message, strLen, 0);
+			if (nRet == ERROR_CURRENT_DIRECTORY)
+			{
+				printf("ERROR_CURRENT_DIRECTORY");
+			}
+			//DWORD dword = ::GetLastError();
+			printf("%d\n", nRet);
 		}
 	});
 
