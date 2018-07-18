@@ -15,6 +15,12 @@ ipch/
 *.log
 *.db
 Debug/
+cocos2d/
+proj.android/
+proj.android-studio/
+proj.ios_mac/
+proj.linux/
+Debug.win32/
 
 # Visual Studio profiler
 *.psess
