@@ -41,6 +41,11 @@
     <ClCompile Include="..\Classes\ServerMessage.pb.cc">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="ClassicTetrisLayer.cpp" />
+    <ClCompile Include="DropBlock.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="CellBoard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -72,6 +77,11 @@
     <ClInclude Include="..\Classes\ServerMessage.pb.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="ClassicTetrisLayer.h" />
+    <ClInclude Include="DropBlock.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="CellBoard.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">

@@ -7,6 +7,7 @@
 #include "extensions/cocos-ext.h"
 #include "ScrollBar.h"
 #include "../proj.win32/PacketHandler.h"
+#include "..\proj.win32\ClassicTetrisLayer.h"
 
 #include <deque>
 #include <string>
@@ -48,7 +49,7 @@ public:
 
 	virtual void Handle(const ServerMessage::Chat& message) override;
 private:
-
+	CClassicTetrisLayer* m_pGameLayer = nullptr;
 	deque<string> m_vecChatMsg;
 	int			m_nMaxChatMsg = 100;
 	TableView* m_ptableView;

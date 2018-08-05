@@ -2,7 +2,6 @@
 #include "SimpleAudioEngine.h"
 #include "TextFieldKR.h"
 #include "NetworkThread.h"
-
 USING_NS_CC;
 USING_NS_CC_EXT;
 
@@ -80,7 +79,7 @@ bool CLobbyScene::init()
 	//pRedDot->setOpacity(0.5);
 	pRedDot->setAnchorPoint(Vec2::ZERO);
 
-	this->addChild(pRedDot);
+	//this->addChild(pRedDot);
 
 	//CCEditbox
 
@@ -151,6 +150,13 @@ bool CLobbyScene::init()
 
 
 	AddTrackNode(pTextField);
+
+
+	CClassicTetrisLayer* pgameLayer = CClassicTetrisLayer::create();
+	pgameLayer->setPosition(100.f, -100.f);
+	addChild(pgameLayer);
+	m_pGameLayer = pgameLayer;
+	pgameLayer->UpdateCellTexture();
 
 	return true;
 }
@@ -226,6 +232,43 @@ void CLobbyScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 	{
 		//346
 	}
+
+	if (keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW)
+	{
+		if (m_pGameLayer)
+		{
+			m_pGameLayer->RotateBlockLeft();
+		}
+	}
+	else if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
+	{
+		if (m_pGameLayer)
+		{
+			m_pGameLayer->MoveBlockDown();
+		}
+	}
+	else if(keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
+	{
+		if (m_pGameLayer)
+		{
+			m_pGameLayer->MoveBlockLeft();
+		}
+	}
+	else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
+	{
+		if (m_pGameLayer)
+		{
+			m_pGameLayer->MoveBlockRight();
+		}
+	}
+	else if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+	{
+		if (m_pGameLayer)
+		{
+			m_pGameLayer->DropBlock();
+		}
+	}
+
 
 	if (keyCode == EventKeyboard::KeyCode::KEY_ENTER)
 	{

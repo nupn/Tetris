@@ -155,6 +155,9 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClCompile Include="..\Classes\ScrollBar.cpp" />
     <ClCompile Include="..\Classes\ServerMessage.pb.cc" />
     <ClCompile Include="..\Classes\TextFieldKR.cpp" />
+    <ClCompile Include="CellBoard.cpp" />
+    <ClCompile Include="ClassicTetrisLayer.cpp" />
+    <ClCompile Include="DropBlock.cpp" />
     <ClCompile Include="KeyboardNotificationLayer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PacketHandler.cpp" />
@@ -168,6 +171,9 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClInclude Include="..\Classes\ScrollBar.h" />
     <ClInclude Include="..\Classes\ServerMessage.pb.h" />
     <ClInclude Include="..\Classes\TextFieldKR.h" />
+    <ClInclude Include="CellBoard.h" />
+    <ClInclude Include="ClassicTetrisLayer.h" />
+    <ClInclude Include="DropBlock.h" />
     <ClInclude Include="KeyboardNotificationLayer.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="PacketHandler.h" />
