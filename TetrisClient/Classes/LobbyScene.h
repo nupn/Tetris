@@ -40,19 +40,32 @@ public:
 	virtual ssize_t numberOfCellsInTableView(cocos2d::extension::TableView *table)override;
 
 
-	ScrollBar* bar;
 
 
 	void onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
+	void onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
 
 	CREATE_FUNC(CLobbyScene);
 
 	virtual void Handle(const ServerMessage::Chat& message) override;
+
+	void OnUpdate(float dt);
+	
+
+	virtual ~CLobbyScene();
+
+
+public:
+	ScrollBar* bar;
+
 private:
 	CClassicTetrisLayer* m_pGameLayer = nullptr;
 	deque<string> m_vecChatMsg;
 	int			m_nMaxChatMsg = 100;
 	TableView* m_ptableView;
+
+	int m_nUpdateCnt = 0;
+	int nLastSideKeyInput = 0;
 };
 
 class ChatScrollView : public cocos2d::extension::TableViewCell

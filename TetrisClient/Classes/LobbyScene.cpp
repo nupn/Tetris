@@ -5,6 +5,12 @@
 USING_NS_CC;
 USING_NS_CC_EXT;
 
+
+CLobbyScene::~CLobbyScene()
+{
+	CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CLobbyScene::OnUpdate), this);
+}
+
 Scene* CLobbyScene::createScene()
 {
 	return CLobbyScene::create();
@@ -145,7 +151,8 @@ bool CLobbyScene::init()
 
 	auto keyListener = EventListenerKeyboard::create();
 	keyListener->onKeyPressed = CC_CALLBACK_2(CLobbyScene::onKeyPressed, this);
-	
+	keyListener->onKeyReleased = CC_CALLBACK_2(CLobbyScene::onKeyReleased, this);
+
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
 
 
@@ -157,6 +164,9 @@ bool CLobbyScene::init()
 	addChild(pgameLayer);
 	m_pGameLayer = pgameLayer;
 	pgameLayer->UpdateCellTexture();
+
+
+	CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CLobbyScene::OnUpdate), this, 0, false);
 
 	return true;
 }
@@ -226,6 +236,44 @@ ssize_t CLobbyScene::numberOfCellsInTableView(TableView *table)
 	return m_vecChatMsg.size();
 }
 
+void CLobbyScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
+{
+	if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
+	{
+		if (m_pGameLayer && nLastSideKeyInput == -1)
+		{
+	
+			nLastSideKeyInput = 0;
+		}
+	}
+	else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
+	{
+		if (m_pGameLayer && nLastSideKeyInput == 1)
+		{
+			nLastSideKeyInput = 0;
+		}
+	}
+}
+
+
+void CLobbyScene::OnUpdate(float dt)
+{
+	if (nLastSideKeyInput == 1)
+	{
+		m_nUpdateCnt++;
+		int nSpeed = m_nUpdateCnt * m_nUpdateCnt;
+
+		m_pGameLayer->MoveBlockRight();
+
+	}
+	else if (nLastSideKeyInput == -1)
+	{
+		m_nUpdateCnt++;
+		m_pGameLayer->MoveBlockLeft();
+	}
+}
+
+
 void CLobbyScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
 	if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ALT)
@@ -249,16 +297,20 @@ void CLobbyScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 	}
 	else if(keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
 	{
-		if (m_pGameLayer)
+		if (m_pGameLayer && nLastSideKeyInput == 0)
 		{
 			m_pGameLayer->MoveBlockLeft();
+			m_nUpdateCnt = 0;
+			nLastSideKeyInput = -1;
 		}
 	}
 	else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
 	{
-		if (m_pGameLayer)
+		if (m_pGameLayer && nLastSideKeyInput == 0)
 		{
 			m_pGameLayer->MoveBlockRight();
+			m_nUpdateCnt = 0;
+			nLastSideKeyInput = 1;
 		}
 	}
 	else if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
