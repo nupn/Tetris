@@ -67,6 +67,8 @@ void CCellBoard::OnDraw(cocos2d::SpriteBatchNode* container)
 	Sprite* pSprite;
 	int posY = 23 * 20;
 	int idx = 0, row = 0, col = 0;
+	//for (int i = 0; i < kCellMax; ++i)
+
 	for (int nCellState : arrCellFrameBoard)
 	{
 		col = idx % 10;
@@ -178,4 +180,42 @@ void CCellBoard::MoveBlockDown()
 	{
 		m_DropBlock = dropBlock;
 	}	
+}
+
+void CCellBoard::CheckLineClear()
+{
+	Sprite* pSprite;
+	int posY = 23 * 20;
+	int idx = 0, row = 0, col = 0;
+	for (int i = 0; i < kCellMax; ++i)
+	{
+		col = i % 10;
+		row = floor(i / 10);
+
+	}
+
+	for (int row = 0; row < 20; ++row)
+	{
+		bool bCheckCompleteLine = true;
+		for (int col = 0; col < 10; ++col)
+		{
+			int idx = row * 10 + col;
+			if (arrCellFrameBoard[idx] == kBlockResourcIdxDefault)
+			{
+				bCheckCompleteLine = false;
+			}
+		}
+
+		if (bCheckCompleteLine)
+		{
+			for (int col = 0; col < 10; ++col)
+			{
+				int idx = row * 10 + col;
+				if (arrCellFrameBoard[idx] == kBlockResourcIdxDefault)
+				{
+					bCheckCompleteLine = false;
+				}
+			}
+		}
+	}
 }

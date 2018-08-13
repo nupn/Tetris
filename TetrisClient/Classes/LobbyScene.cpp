@@ -104,8 +104,8 @@ bool CLobbyScene::init()
 
 	/*
 	auto pTextField = TextFieldTTF::textFieldWithPlaceHolder("<click here for input>",
-		"fonts/arial.ttf",
-		36);
+	"fonts/arial.ttf",
+	36);
 	pTextField->setPosition(500, 100);
 	addChild(pTextField);
 	//*/
@@ -114,13 +114,13 @@ bool CLobbyScene::init()
 	{
 		std::string strTemp = StringUtils::format("%d", i);
 		m_vecChatMsg.push_back(strTemp);
-	}	
+	}
 
 	//auto pInputText = new InputText;
 	//pInputText->setPosition(100, 100);
 	//this->addChild(pInputText);
 	//pInputText->_trackNode = pTextField;
-	
+
 	auto listener = EventListenerTouchOneByOne::create();
 	listener->onTouchBegan = CC_CALLBACK_2(InputText::onTouchBegan, static_cast<InputText*>(this));
 	listener->onTouchEnded = CC_CALLBACK_2(InputText::onTouchEnded, static_cast<InputText*>(this));
@@ -211,7 +211,7 @@ TableViewCell* CLobbyScene::tableCellAtIndex(TableView *table, ssize_t idx)
 
 	TableViewCell *cell = table->dequeueCell();
 	if (!cell) {
-		cell = new (std::nothrow) TableViewCell( );
+		cell = new (std::nothrow) TableViewCell();
 		cell->autorelease();
 		cell->setContentSize(Size(100, 30));
 
@@ -240,36 +240,67 @@ void CLobbyScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
 	if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
 	{
-		if (m_pGameLayer && nLastSideKeyInput == -1)
-		{
-	
-			nLastSideKeyInput = 0;
-		}
+		m_bMovingLeft = false;
 	}
 	else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
 	{
-		if (m_pGameLayer && nLastSideKeyInput == 1)
-		{
-			nLastSideKeyInput = 0;
-		}
+		m_bMovingRight = false;
+	}
+	else if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
+	{
+		m_bMovingDown = false;
 	}
 }
 
 
 void CLobbyScene::OnUpdate(float dt)
 {
-	if (nLastSideKeyInput == 1)
+	//m_nUpdatePerTime = (nMovePerFrameMax - nMovePerFrameMin) - floor((nMovePerFrameMax - nMovePerFrameMin) * floor((m_nUpdateCntTotal * m_nUpdateCntTotal) / nMaxSpeed));
+	
+
+	const int nMoveMinFrame = 10;
+	const int nMovePerFrame = 3;
+
+	if (m_bMovingRight)
 	{
 		m_nUpdateCnt++;
-		int nSpeed = m_nUpdateCnt * m_nUpdateCnt;
-
-		m_pGameLayer->MoveBlockRight();
-
+		++m_nUpdateCntTotal;
+		if (m_nUpdateCntTotal > nMoveMinFrame)
+		{
+			if (m_nUpdateCnt > nMovePerFrame)
+			{
+				m_pGameLayer->MoveBlockRight();
+				m_nUpdateCnt -= nMovePerFrame;
+			}
+		}
 	}
-	else if (nLastSideKeyInput == -1)
+	else if (m_bMovingLeft)
 	{
 		m_nUpdateCnt++;
-		m_pGameLayer->MoveBlockLeft();
+		++m_nUpdateCntTotal;
+		if (m_nUpdateCntTotal > nMoveMinFrame)
+		{
+			if (m_nUpdateCnt > nMovePerFrame)
+			{
+
+				m_pGameLayer->MoveBlockLeft();
+				m_nUpdateCnt -= nMovePerFrame;
+			}
+		}
+	}
+	else if (m_bMovingDown)
+	{
+		m_nUpdateCnt++;
+		++m_nUpdateCntTotal;
+		if (m_nUpdateCntTotal > nMoveMinFrame)
+		{
+			if (m_nUpdateCnt > nMovePerFrame)
+			{
+
+				m_pGameLayer->MoveBlockDown();
+				m_nUpdateCnt -= nMovePerFrame;
+			}
+		}
 	}
 }
 
@@ -290,27 +321,35 @@ void CLobbyScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 	}
 	else if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
 	{
-		if (m_pGameLayer)
+		if (m_pGameLayer && m_bMovingDown == false)
 		{
 			m_pGameLayer->MoveBlockDown();
+			m_nUpdateCnt = 0;
+			m_nUpdateCntTotal = 0;
+			m_nUpdatePerTime = 20;
+			m_bMovingDown = true;
 		}
 	}
-	else if(keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
+	else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
 	{
-		if (m_pGameLayer && nLastSideKeyInput == 0)
+		if (m_pGameLayer && m_bMovingLeft == false)
 		{
 			m_pGameLayer->MoveBlockLeft();
 			m_nUpdateCnt = 0;
-			nLastSideKeyInput = -1;
+			m_nUpdateCntTotal = 0;
+			m_nUpdatePerTime = 20;
+			m_bMovingLeft = true;
 		}
 	}
 	else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
 	{
-		if (m_pGameLayer && nLastSideKeyInput == 0)
+		if (m_pGameLayer && m_bMovingRight == false)
 		{
 			m_pGameLayer->MoveBlockRight();
 			m_nUpdateCnt = 0;
-			nLastSideKeyInput = 1;
+			m_nUpdateCntTotal = 0;
+			m_nUpdatePerTime = 20;
+			m_bMovingRight = true;
 		}
 	}
 	else if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
@@ -359,7 +398,7 @@ void CLobbyScene::Handle(const ServerMessage::Chat& message)
 
 	m_vecChatMsg.push_back(message.message());
 
-	Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]()->void 
+	Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]()->void
 	{
 
 		m_ptableView->reloadData();

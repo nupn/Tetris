@@ -65,7 +65,13 @@ private:
 	TableView* m_ptableView;
 
 	int m_nUpdateCnt = 0;
-	int nLastSideKeyInput = 0;
+	int m_nUpdateCntTotal = 0;
+	int m_nUpdatePerTime = 0;
+
+
+	bool m_bMovingLeft = false;
+	bool m_bMovingRight = false;
+	bool m_bMovingDown = false;
 };
 
 class ChatScrollView : public cocos2d::extension::TableViewCell

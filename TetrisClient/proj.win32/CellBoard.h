@@ -20,6 +20,8 @@ public:
 	void RotateDropBlock(bool bCW);
 	void MoveBlockSide(int nDir);
 	void MoveBlockDown();
+	void CheckLineClear();
+
 	int IsCollisionSideWall(CDropBlock* targetBlock);
 	int IsCollisionFloor(CDropBlock* targetBlock);
 	void DropBlock();
