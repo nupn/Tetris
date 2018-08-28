@@ -37,8 +37,9 @@ public:
 
 	int IsCollisionToWall();
 
-	int IsCollisionToFloor();
-	int IsCollisionToCell(int* cellBoard);
+	bool IsCollisionToFloor();
+	bool IsCollisionToCell(int* cellBoard);
+	bool IsCollision(int* cellBoard);
 
 	bool RotateCW();
 	bool RotateCCW();
@@ -46,7 +47,8 @@ public:
 	void SetPos(const cocos2d::Vec2& vecPos);
 
 
-
+	bool GetOverlap(int* cellBoard, cocos2d::Vec2& vecOvelap);
+	
 
 	bool DropByGravity() {};
 	void SinkToFloor() {};

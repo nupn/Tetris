@@ -11,6 +11,12 @@ public:
 		kBlockResourcIdxMax = 8,
 	};
 
+	enum class DownBlockResult : int
+	{
+		Floating,
+		Dropped,
+	};
+
 public:
 	CCellBoard();
 	virtual ~CCellBoard();
@@ -19,12 +25,15 @@ public:
 	void UpdateDropBlock();
 	void RotateDropBlock(bool bCW);
 	void MoveBlockSide(int nDir);
-	void MoveBlockDown();
+
+	DownBlockResult MoveBlockDown();
 	void CheckLineClear();
 
 	int IsCollisionSideWall(CDropBlock* targetBlock);
 	int IsCollisionFloor(CDropBlock* targetBlock);
 	void DropBlock();
+
+	bool IsDeadLine();
 
 private:
 	CDropBlock m_DropBlock;

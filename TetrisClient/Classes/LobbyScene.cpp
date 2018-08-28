@@ -252,6 +252,14 @@ void CLobbyScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 	}
 }
 
+void CLobbyScene::ResetAllTimer()
+{
+	m_nUpdateCnt = 0;
+	m_nUpdateCntTotal = 0;
+	m_nUpdatePerTime = 20;
+	m_bMovingDownDeadLine = false;
+}
+
 
 void CLobbyScene::OnUpdate(float dt)
 {
@@ -296,9 +304,19 @@ void CLobbyScene::OnUpdate(float dt)
 		{
 			if (m_nUpdateCnt > nMovePerFrame)
 			{
+				if (m_pGameLayer->IsDropBlockDeadLine() && !m_bMovingDownDeadLine)
+				{
+					m_bMovingDownDeadLine = true;
+					m_nUpdateCntTotal = 0;
+					return;
+				}
 
-				m_pGameLayer->MoveBlockDown();
+				CCellBoard::DownBlockResult ret = m_pGameLayer->MoveBlockDown();
 				m_nUpdateCnt -= nMovePerFrame;
+				if (ret == CCellBoard::DownBlockResult::Dropped)
+				{
+					ResetAllTimer();
+				}
 			}
 		}
 	}
@@ -328,6 +346,7 @@ void CLobbyScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 			m_nUpdateCntTotal = 0;
 			m_nUpdatePerTime = 20;
 			m_bMovingDown = true;
+			m_bMovingDownDeadLine = false;
 		}
 	}
 	else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)

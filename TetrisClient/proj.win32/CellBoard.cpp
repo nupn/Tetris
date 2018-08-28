@@ -47,15 +47,51 @@ void CCellBoard::RotateDropBlock(bool bCW)
 		dropBlock.RotateCCW();
 	}
 
+	Vec2 vecOverlap;
+	if (!dropBlock.GetOverlap(arrCellFrameBoard, vecOverlap))
+	{
+		return;
+	}
+
+	if (vecOverlap.x > 0 && vecOverlap.y > 0)
+	{
+		return;
+	}
+
+	Vec2 movePos = blockPos;
+	movePos.x += vecOverlap.x;
+	dropBlock.SetPos(movePos);
+	if (!dropBlock.IsCollision(arrCellFrameBoard))
+	{
+		m_DropBlock = dropBlock;
+		return;
+	}
+	
+	movePos = blockPos;
+	movePos.y -= vecOverlap.y;
+	dropBlock.SetPos(movePos);
+	if (!dropBlock.IsCollision(arrCellFrameBoard))
+	{
+		m_DropBlock = dropBlock;
+		return;
+	}
+
+
+	/*
 	int nRep = dropBlock.IsCollisionToWall();
 	//여기에 바닥체크, 블럭체크 들어가야지?
 	if (nRep != 0)
 	{
-		blockPos.x -= nRep;
-		dropBlock.SetPos(blockPos);
+	blockPos.x -= nRep;
+	dropBlock.SetPos(blockPos);
 	}
 
-	m_DropBlock = dropBlock;
+	//IsCollisionToCell 을 CellBoard 함수로 변경
+	if (dropBlock.IsCollisionToCell(arrCellFrameBoard))
+	{
+	return;
+	}
+	*/
 }
 
 
@@ -94,7 +130,7 @@ void CCellBoard::MoveBlockSide(int nDir)
 	//벽뚤린 테트리스 해볼까?
 	//사선으로 날리는 테트리스
 	//여기도 바닥체크, 블럭체크 들어가야지?
-	if (dropBlock.IsCollisionToWall() == 0)
+	if (dropBlock.IsCollisionToWall() == 0 && dropBlock.IsCollisionToCell(arrCellFrameBoard) == false)
 	{
 		blockPos.x += nDir;
 		m_DropBlock = dropBlock;
@@ -140,13 +176,13 @@ void CCellBoard::DropBlock()
 	{
 		blockPos.y -= 1;
 		dropBlock.SetPos(blockPos);
-		if (dropBlock.IsCollisionToFloor() != 0)
+		if (dropBlock.IsCollisionToCell(arrCellFrameBoard))
 		{
 			blockPos.y += 1;
 			dropBlock.SetPos(blockPos);
 			break;
 		}
-		else if (dropBlock.IsCollisionToCell(arrCellFrameBoard) != 0)
+		if (dropBlock.IsCollisionToFloor())
 		{
 			blockPos.y += 1;
 			dropBlock.SetPos(blockPos);
@@ -157,16 +193,17 @@ void CCellBoard::DropBlock()
 	m_DropBlock = dropBlock;
 
 	m_DropBlock.MarkCell(arrCellFrameBoard);
+	CheckLineClear();
 	UpdateDropBlock();
 }
 
-void CCellBoard::MoveBlockDown()
+CCellBoard::DownBlockResult CCellBoard::MoveBlockDown()
 {
 	CDropBlock dropBlock(m_DropBlock);
 	Vec2 blockPos = dropBlock.GetPos();
 	blockPos.y -= 1;
 	dropBlock.SetPos(blockPos);
-	if ((dropBlock.IsCollisionToFloor() != 0) || (dropBlock.IsCollisionToCell(arrCellFrameBoard) != 0))
+	if ((dropBlock.IsCollisionToFloor()) || dropBlock.IsCollisionToCell(arrCellFrameBoard))
 	{
 		blockPos.y += 1;
 		dropBlock.SetPos(blockPos);
@@ -175,11 +212,12 @@ void CCellBoard::MoveBlockDown()
 
 		m_DropBlock.MarkCell(arrCellFrameBoard);
 		UpdateDropBlock();
+
+		return CCellBoard::DownBlockResult::Dropped;
 	}
-	else
-	{
-		m_DropBlock = dropBlock;
-	}	
+
+	m_DropBlock = dropBlock;
+	return CCellBoard::DownBlockResult::Floating;
 }
 
 void CCellBoard::CheckLineClear()
@@ -194,6 +232,7 @@ void CCellBoard::CheckLineClear()
 
 	}
 
+	int nLineClearCnt = 0;
 	for (int row = 0; row < 20; ++row)
 	{
 		bool bCheckCompleteLine = true;
@@ -211,11 +250,38 @@ void CCellBoard::CheckLineClear()
 			for (int col = 0; col < 10; ++col)
 			{
 				int idx = row * 10 + col;
-				if (arrCellFrameBoard[idx] == kBlockResourcIdxDefault)
+				arrCellFrameBoard[idx] = kBlockResourcIdxDefault;
+			}
+
+			++nLineClearCnt;
+		}
+		else
+		{
+			int nRowToMove = row - nLineClearCnt;
+			if (nRowToMove >= 0 && nRowToMove != row)
+			{
+				for (int col = 0; col < 10; ++col)
 				{
-					bCheckCompleteLine = false;
+					int idx = row * 10 + col;
+					int idxTo = nRowToMove * 10 + col;
+					arrCellFrameBoard[idxTo] = arrCellFrameBoard[idx];
+					arrCellFrameBoard[idx] = kBlockResourcIdxDefault;
 				}
 			}
 		}
 	}
+}
+
+bool CCellBoard::IsDeadLine()
+{
+	CDropBlock dropBlock(m_DropBlock);
+	Vec2 blockPos = dropBlock.GetPos();
+	blockPos.y -= 1;
+	dropBlock.SetPos(blockPos);
+	if ((dropBlock.IsCollisionToFloor()) || dropBlock.IsCollisionToCell(arrCellFrameBoard))
+	{
+		return true;
+	}
+
+	return false;
 }

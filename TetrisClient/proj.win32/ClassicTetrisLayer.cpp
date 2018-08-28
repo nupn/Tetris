@@ -68,8 +68,15 @@ void CClassicTetrisLayer::DropBlock()
 	UpdateCellTexture();
 }
 
-void CClassicTetrisLayer::MoveBlockDown()
+CCellBoard::DownBlockResult CClassicTetrisLayer::MoveBlockDown()
 {
-	m_CellBoard.MoveBlockDown();
+	CCellBoard::DownBlockResult ret =  m_CellBoard.MoveBlockDown();
 	UpdateCellTexture();
+
+	return ret;
+}
+
+bool CClassicTetrisLayer::IsDropBlockDeadLine()
+{
+	return m_CellBoard.IsDeadLine();
 }

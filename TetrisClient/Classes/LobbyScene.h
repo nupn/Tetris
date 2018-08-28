@@ -39,7 +39,7 @@ public:
 	virtual cocos2d::extension::TableViewCell* tableCellAtIndex(cocos2d::extension::TableView *table, ssize_t idx)override;
 	virtual ssize_t numberOfCellsInTableView(cocos2d::extension::TableView *table)override;
 
-
+	void ResetAllTimer();
 
 
 	void onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
@@ -72,6 +72,8 @@ private:
 	bool m_bMovingLeft = false;
 	bool m_bMovingRight = false;
 	bool m_bMovingDown = false;
+	bool m_bMovingDownDeadLine = false;
+
 };
 
 class ChatScrollView : public cocos2d::extension::TableViewCell

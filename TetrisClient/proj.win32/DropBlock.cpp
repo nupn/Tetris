@@ -5,6 +5,7 @@
 using namespace cocos2d;
 
 
+//static Vec2 nShapeToBlock[7][4] = {
 static std::vector<Vec2> nShapeToBlock[7][4] = {
 {
 	//작대기
@@ -30,32 +31,45 @@ static std::vector<Vec2> nShapeToBlock[7][4] = {
 {
 	//오른쪽 슬라이드
 	{ Vec2::Vec2(0,1), Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(2,2) },
-	{ Vec2::Vec2(2,1), Vec2::Vec2(1,2), Vec2::Vec2(2,2), Vec2::Vec2(1,3) },
+	{ Vec2::Vec2(2,1), Vec2::Vec2(2,2), Vec2::Vec2(1,2), Vec2::Vec2(1,3) },
 	{ Vec2::Vec2(0,1), Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(2,2) },
-	{ Vec2::Vec2(2,1), Vec2::Vec2(1,2), Vec2::Vec2(2,2), Vec2::Vec2(1,3) }
+	{ Vec2::Vec2(2,1), Vec2::Vec2(2,2), Vec2::Vec2(1,2), Vec2::Vec2(1,3) }
 },
 {
 	//왼쪽 슬라이드
-	{ Vec2::Vec2(1,1), Vec2::Vec2(2,1), Vec2::Vec2(0,2), Vec2::Vec2(1,2) },
-	{ Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(2,2), Vec2::Vec2(2,3) },
-	{ Vec2::Vec2(1,1), Vec2::Vec2(2,1), Vec2::Vec2(0,2), Vec2::Vec2(1,2) },
-	{ Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(2,2), Vec2::Vec2(2,3) }
+	{ Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(1,1), Vec2::Vec2(2,1) },
+	{ Vec2::Vec2(0,1), Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(1,3) },
+	{ Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(1,1), Vec2::Vec2(2,1) },
+	{ Vec2::Vec2(0,1), Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(1,3) }
 },
 {
 	//ㄴ
 	{ Vec2::Vec2(0,1), Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(2,2) },
-	{ Vec2::Vec2(1,1), Vec2::Vec2(2,1), Vec2::Vec2(1,2), Vec2::Vec2(1,3) },
+	{ Vec2::Vec2(2,1), Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(1,3) },
 	{ Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(2,2), Vec2::Vec2(2,3) },
 	{ Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(1,3), Vec2::Vec2(0,3) }
 },
 {
 	//역ㄴ
-	{ Vec2::Vec2(2,1), Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(2,2) },
+	{ Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(2,2), Vec2::Vec2(2,1) },
 	{ Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(1,3), Vec2::Vec2(2,3) },
-	{ Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(2,2), Vec2::Vec2(0,3) },
+	{ Vec2::Vec2(0,3), Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(2,2) },
 	{ Vec2::Vec2(0,1), Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(1,3) }
 }
 };
+
+
+
+static Vec2 BlockCore[7] = {
+	Vec2::Vec2(1,2), //작대기
+	Vec2::Vec2(1, 2), // ㅗ
+	Vec2::Vec2(0,1), //네모
+	Vec2::Vec2(1,2), //오른쪾 슬라이드
+	Vec2::Vec2(1,2), // 왼쪽 슬라이드
+	Vec2::Vec2(1,2), //ㄴ
+	Vec2::Vec2(1,2) //역 ㄴ
+};
+
 
 /*
 //작대기
@@ -233,26 +247,21 @@ int CDropBlock::IsCollisionToWall()
 	return nPos;
 }
 
-int CDropBlock::IsCollisionToFloor()
+bool CDropBlock::IsCollisionToFloor()
 {
-	int nPos = 0;
 	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
 	{
 		if ((m_nPos.y - blockInfo.y)  <  0)
 		{
-			if ((m_nPos.y - blockInfo.y) < nPos)
-			{
-				nPos = m_nPos.y - blockInfo.y;
-			}
+			return true;
 		}
 	}
 
-	return nPos;
+	return false;
 }
 
-int CDropBlock::IsCollisionToCell(int* cellBoard)
+bool CDropBlock::IsCollisionToCell(int* cellBoard)
 {
-	int nPos = 0;
 	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
 	{
 		int cellCol = m_nPos.x + blockInfo.x;
@@ -263,15 +272,12 @@ int CDropBlock::IsCollisionToCell(int* cellBoard)
 		{
 			if (cellBoard[sellidx] != BlockType::kBlockTypeMax)
 			{
-				if (nPos < cellRow)
-				{
-					nPos = cellRow;
-				}
+				return true;
 			}
 		}
 	}
 
-	return nPos;
+	return false;
 }
 
 void CDropBlock::MarkCell(int* cellBoard)
@@ -288,3 +294,149 @@ void CDropBlock::MarkCell(int* cellBoard)
 		}
 	}
 }
+
+bool CDropBlock::GetOverlap(int* cellBoard, Vec2& vecOvelap)
+{
+	Vec2 coreBlock = BlockCore[m_nType];
+	Vec2 lastCheck;
+	int cellCol = 0;
+	int cellRow = 0;
+	int sellidx = 0;
+	
+	int nWidthDistance = 0;
+	int nHeightDistance = 0;
+
+	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
+	{
+		cellCol = m_nPos.x + blockInfo.x;
+		cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
+		sellidx = cellCol + cellRow * 10;
+
+		bool isCollison = false;
+		if (sellidx < 200)
+		{
+			if (cellBoard[sellidx] != BlockType::kBlockTypeMax)
+			{
+				isCollison = true;
+			}
+		}
+
+		if (cellRow < 0)
+		{
+			isCollison = true;
+		}
+
+		if (cellCol < 0 || cellCol > 9)
+		{
+			isCollison = true;
+		}
+
+		if (isCollison)
+		{
+			if (lastCheck.x != 0 && lastCheck.y != 0)
+			{
+				int distance = abs(lastCheck.x - blockInfo.x) + abs(lastCheck.y - blockInfo.y);
+				if (distance > 1)
+				{
+					return false;
+				}
+			}
+
+			nWidthDistance = coreBlock.x - blockInfo.x;
+			nHeightDistance = coreBlock.y - blockInfo.y;
+
+			if (abs(nWidthDistance) > abs(vecOvelap.x))
+			{
+				vecOvelap.x = nWidthDistance;
+			}
+
+			if (abs(nHeightDistance) > abs(vecOvelap.y))
+			{
+				vecOvelap.y = nHeightDistance;
+			}
+
+			lastCheck = blockInfo;
+		}
+	}
+
+	return true;
+}
+
+bool CDropBlock::IsCollision(int* cellBoard)
+{
+
+	int cellCol = 0;
+	int cellRow = 0;
+	int sellidx = 0;
+
+	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
+	{
+		cellCol = m_nPos.x + blockInfo.x;
+		cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
+		sellidx = cellCol + cellRow * 10;
+
+		if (sellidx < 200)
+		{
+			if (cellBoard[sellidx] != BlockType::kBlockTypeMax)
+			{
+				return true;
+			}
+		}
+
+		if (cellRow < 0)
+		{
+			return true;
+		}
+
+		if (cellCol < 0 || cellCol > 9)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//
+//bool CDropBlock::IsCollisionToCell(int* cellBoard)
+//{
+//int nPos = 0;
+//for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
+//{
+//int cellCol = m_nPos.x + blockInfo.x;
+//int cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
+//
+//int sellidx = cellCol + cellRow * 10;
+//if (sellidx < 200)
+//{
+//if (cellBoard[sellidx] != BlockType::kBlockTypeMax)
+//{
+//if (nPos < cellRow)
+//{
+//nPos = cellRow;
+//}
+//}
+//}
+//}
+//
+//return false;
+//}
+
+
+
+//bool CDropBlock::IsCollisionToFloor()
+//{
+//	int nPos = 0;
+//	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
+//	{
+//		if ((m_nPos.y - blockInfo.y)  <  0)
+//		{
+//			if ((m_nPos.y - blockInfo.y) < nPos)
+//			{
+//				nPos = m_nPos.y - blockInfo.y;
+//			}
+//		}
+//	}
+//
+//	return nPos;
+//}

@@ -17,8 +17,10 @@ public:
 	void RotateBlockRight();
 	void MoveBlockLeft();
 	void MoveBlockRight();
-	void MoveBlockDown();
+	CCellBoard::DownBlockResult MoveBlockDown();
+	
 	void DropBlock();
+	bool IsDropBlockDeadLine();
 public:
 	cocos2d::SpriteBatchNode* pBatchCellContainer = nullptr;
 	CCellBoard m_CellBoard;
