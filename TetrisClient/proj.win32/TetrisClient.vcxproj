@@ -155,11 +155,16 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClCompile Include="..\Classes\ScrollBar.cpp" />
     <ClCompile Include="..\Classes\ServerMessage.pb.cc" />
     <ClCompile Include="..\Classes\TextFieldKR.cpp" />
+    <ClCompile Include="BlockProductor.cpp" />
+    <ClCompile Include="CellBatchSprite.cpp" />
     <ClCompile Include="CellBoard.cpp" />
     <ClCompile Include="ClassicTetrisLayer.cpp" />
+    <ClCompile Include="Constants.cpp" />
     <ClCompile Include="DropBlock.cpp" />
+    <ClCompile Include="GameBoard.cpp" />
     <ClCompile Include="KeyboardNotificationLayer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NextBlockView.cpp" />
     <ClCompile Include="PacketHandler.cpp" />
     <ClCompile Include="Socket.cpp" />
   </ItemGroup>
@@ -171,11 +176,16 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClInclude Include="..\Classes\ScrollBar.h" />
     <ClInclude Include="..\Classes\ServerMessage.pb.h" />
     <ClInclude Include="..\Classes\TextFieldKR.h" />
+    <ClInclude Include="BlockProductor.h" />
+    <ClInclude Include="CellBatchSprite.h" />
     <ClInclude Include="CellBoard.h" />
     <ClInclude Include="ClassicTetrisLayer.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="DropBlock.h" />
+    <ClInclude Include="GameBoard.h" />
     <ClInclude Include="KeyboardNotificationLayer.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="NextBlockView.h" />
     <ClInclude Include="PacketHandler.h" />
     <ClInclude Include="Socket.h" />
   </ItemGroup>

@@ -1,7 +1,8 @@
 #pragma once
 #include "cocos2d.h"
+#include "CellBoard.h"
 
-class CDropBlock
+class CBlockBase
 {
 public:
 	enum BlockType
@@ -24,22 +25,35 @@ public:
 		kBlockStateA270,
 	};
 
+	CBlockBase() = default;
+	~CBlockBase() = default;
+	virtual void Reset(cocos2d::Vec2&& pos, BlockType nBlockType);
+	void DrawCell(ICellBoard* cellBoard);
+	void UndrawCell(ICellBoard* cellBoard);
+
+protected:
+	BlockType m_nType;
+	BlockState m_nState;
+	cocos2d::Vec2 m_nPos;
+};
+
+class CDropBlock : public CBlockBase
+{
+
+
 public:
 	CDropBlock() = default;
 	~CDropBlock() = default;
 
 
 public:
-	void Reset(cocos2d::Vec2&& posX , BlockType nBlockType);
-	void DrawCell(int* cellBoard);
-	void UndrawCell(int* cellBoard);
-	void MarkCell(int* cellBoard);
-
+	virtual void Reset(cocos2d::Vec2&& posX, BlockType nBlockType) override;
 	int IsCollisionToWall();
 
 	bool IsCollisionToFloor();
-	bool IsCollisionToCell(int* cellBoard);
-	bool IsCollision(int* cellBoard);
+	bool IsCollisionToCell(CCellBoard<20, 10>& cellBoard);
+	bool IsCollision(CCellBoard<20, 10>& cellBoard);
+	bool GetOverlap(CCellBoard<20, 10>& cellBoard, cocos2d::Vec2& vecOvelap);
 
 	bool RotateCW();
 	bool RotateCCW();
@@ -47,7 +61,6 @@ public:
 	void SetPos(const cocos2d::Vec2& vecPos);
 
 
-	bool GetOverlap(int* cellBoard, cocos2d::Vec2& vecOvelap);
 	
 
 	bool DropByGravity() {};
@@ -58,13 +71,6 @@ public:
 	bool __CollisionTest() {};
 
 private:
-
-	BlockType m_nType;
-	BlockState m_nState;
 	int m_nEditedYPos;
-	cocos2d::Vec2 m_nPos;
-
-	int m_nblockIdx = 0;
-
 };
 

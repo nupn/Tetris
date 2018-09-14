@@ -116,71 +116,48 @@ nShapeToBlock[6][3] = { Vec2::Vec2(0,2), Vec2::Vec2(1,2), Vec2::Vec2(2,2), Vec2:
 nShapeToBlock[6][4] = { Vec2::Vec2(0,1), Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(1,3) };
 //*/
 
-void CDropBlock::Reset(cocos2d::Vec2&& vecPos, BlockType nBlockType)
+void CBlockBase::Reset(cocos2d::Vec2&& pos, BlockType nBlockType)
 {
+	if (nBlockType < 0 || nBlockType >= BlockType::kBlockTypeMax)
+	{
+		return;
+	}
+
 	m_nType = nBlockType;
 	m_nState = BlockState::kBlockStateA0;
+	m_nPos = std::move(pos);
+}
+
+void CBlockBase::DrawCell(ICellBoard* cellBoard)
+{
+	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
+	{
+		int cellCol = m_nPos.x + blockInfo.x;
+		int cellRow = m_nPos.y - blockInfo.y;
+
+		cellBoard->Set(cellRow, cellCol, m_nType);//Celltype과 컬러 프레임을 일치시켜둠
+	}
+}
+
+void CBlockBase::UndrawCell(ICellBoard* cellBoard)
+{
+	{
+		for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
+		{
+			int cellCol = m_nPos.x + blockInfo.x;
+			int cellRow = m_nPos.y - blockInfo.y;
+
+			cellBoard->Set(cellRow, cellCol, BlockType::kBlockTypeMax);//Celltype과 컬러 프레임을 일치시켜둠
+		}
+	}
+}
+
+void CDropBlock::Reset(cocos2d::Vec2&& vecPos, BlockType nBlockType)
+{
+	CBlockBase::Reset(std::move(vecPos), nBlockType);
 	m_nEditedYPos = 0;
-	m_nPos = std::move(vecPos);
-
-	++m_nblockIdx;
-	m_nType = static_cast<BlockType>(m_nblockIdx);
-	if (m_nblockIdx >= static_cast<int>(BlockType::kBlockTypeMax))
-	{
-		m_nblockIdx = 0;
-		m_nType = BlockType::kBlockTypeBar;
-	}
-}
-void CDropBlock::DrawCell(int* cellBoard)
-{
-	//값 체크는 세팅할떄 초기화할떄만하자
-	if (m_nType < BlockType::kBlockTypeBar || m_nType > BlockType::kBlockTypeMax)
-	{
-		return;
-	}
-
-	if (m_nState < BlockState::kBlockStateA0 || m_nState > BlockState::kBlockStateA270)
-	{
-		return;
-	}
-
-	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
-	{
-		int cellCol = m_nPos.x + blockInfo.x;
-		int cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
-
-		int sellidx = cellCol + cellRow * 10;
-		if (sellidx < 200)
-		{
-			cellBoard[sellidx] = static_cast<int>(m_nType);//Celltype과 컬러 프레임을 일치시켜둠
-		}
-	}
 }
 
-void CDropBlock::UndrawCell(int* cellBoard)
-{
-	if (m_nType < BlockType::kBlockTypeBar || m_nType > BlockType::kBlockTypeMax)
-	{
-		return;
-	}
-
-	if (m_nState < BlockState::kBlockStateA0 || m_nState > BlockState::kBlockStateA270)
-	{
-		return;
-	}
-
-	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
-	{
-		int cellCol = m_nPos.x + blockInfo.x;
-		int cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
-
-		int sellidx = cellCol + cellRow * 10;
-		if (sellidx < 200)
-		{
-			cellBoard[sellidx] = static_cast<int>(BlockType::kBlockTypeMax);//Celltype과 컬러 프레임을 일치시켜둠
-		}
-	}
-}
 
 bool CDropBlock::RotateCW()
 {
@@ -260,42 +237,24 @@ bool CDropBlock::IsCollisionToFloor()
 	return false;
 }
 
-bool CDropBlock::IsCollisionToCell(int* cellBoard)
+bool CDropBlock::IsCollisionToCell(CCellBoard<20, 10>& cellBoard)
 {
 	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
 	{
 		int cellCol = m_nPos.x + blockInfo.x;
 		int cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
 
-		int sellidx = cellCol + cellRow * 10;
-		if (sellidx < 200)
+		if (cellBoard.Get(cellRow, cellCol) != BlockType::kBlockTypeMax)
 		{
-			if (cellBoard[sellidx] != BlockType::kBlockTypeMax)
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 
 	return false;
 }
 
-void CDropBlock::MarkCell(int* cellBoard)
-{
-	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
-	{
-		int cellCol = m_nPos.x + blockInfo.x;
-		int cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
 
-		int sellidx = cellCol + cellRow * 10;
-		if (sellidx < 200)
-		{
-			cellBoard[sellidx] = m_nType;
-		}
-	}
-}
-
-bool CDropBlock::GetOverlap(int* cellBoard, Vec2& vecOvelap)
+bool CDropBlock::GetOverlap(CCellBoard<20, 10>& cellBoard, Vec2& vecOvelap)
 {
 	Vec2 coreBlock = BlockCore[m_nType];
 	Vec2 lastCheck;
@@ -310,15 +269,11 @@ bool CDropBlock::GetOverlap(int* cellBoard, Vec2& vecOvelap)
 	{
 		cellCol = m_nPos.x + blockInfo.x;
 		cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
-		sellidx = cellCol + cellRow * 10;
 
 		bool isCollison = false;
-		if (sellidx < 200)
+		if (cellBoard.Get(cellRow, cellCol) != BlockType::kBlockTypeMax)
 		{
-			if (cellBoard[sellidx] != BlockType::kBlockTypeMax)
-			{
-				isCollison = true;
-			}
+			isCollison = true;
 		}
 
 		if (cellRow < 0)
@@ -362,9 +317,8 @@ bool CDropBlock::GetOverlap(int* cellBoard, Vec2& vecOvelap)
 	return true;
 }
 
-bool CDropBlock::IsCollision(int* cellBoard)
+bool CDropBlock::IsCollision(CCellBoard<20, 10>& cellBoard)
 {
-
 	int cellCol = 0;
 	int cellRow = 0;
 	int sellidx = 0;
@@ -373,14 +327,10 @@ bool CDropBlock::IsCollision(int* cellBoard)
 	{
 		cellCol = m_nPos.x + blockInfo.x;
 		cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
-		sellidx = cellCol + cellRow * 10;
 
-		if (sellidx < 200)
+		if (cellBoard.Get(cellRow, cellCol) != BlockType::kBlockTypeMax)
 		{
-			if (cellBoard[sellidx] != BlockType::kBlockTypeMax)
-			{
-				return true;
-			}
+			return true;
 		}
 
 		if (cellRow < 0)

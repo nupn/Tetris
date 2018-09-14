@@ -311,9 +311,9 @@ void CLobbyScene::OnUpdate(float dt)
 					return;
 				}
 
-				CCellBoard::DownBlockResult ret = m_pGameLayer->MoveBlockDown();
+				CGameBoard::DownBlockResult ret = m_pGameLayer->MoveBlockDown();
 				m_nUpdateCnt -= nMovePerFrame;
-				if (ret == CCellBoard::DownBlockResult::Dropped)
+				if (ret == CGameBoard::DownBlockResult::Dropped)
 				{
 					ResetAllTimer();
 				}

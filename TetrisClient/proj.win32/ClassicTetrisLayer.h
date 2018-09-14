@@ -1,6 +1,7 @@
 #pragma once
 #include "cocos2d.h"
-#include "CellBoard.h"
+#include "../proj.win32/GameBoard.h"
+#include "../proj.win32/BlockProductor.h"
 
 class CClassicTetrisLayer  : public cocos2d::Layer
 {
@@ -17,16 +18,17 @@ public:
 	void RotateBlockRight();
 	void MoveBlockLeft();
 	void MoveBlockRight();
-	CCellBoard::DownBlockResult MoveBlockDown();
+	CGameBoard::DownBlockResult MoveBlockDown();
 	
 	void DropBlock();
 	bool IsDropBlockDeadLine();
-public:
-	cocos2d::SpriteBatchNode* pBatchCellContainer = nullptr;
-	CCellBoard m_CellBoard;
 
 private:
+	void __UpdateDropBlock();
 
+private:
+	CGameBoard* m_pGameBoard = nullptr;
+	CBlockProductor m_BlockProductor;
 
 };
 

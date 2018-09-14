@@ -46,6 +46,11 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="CellBoard.cpp" />
+    <ClCompile Include="BlockProductor.cpp" />
+    <ClCompile Include="GameBoard.cpp" />
+    <ClCompile Include="NextBlockView.cpp" />
+    <ClCompile Include="CellBatchSprite.cpp" />
+    <ClCompile Include="Constants.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -82,6 +87,11 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="CellBoard.h" />
+    <ClInclude Include="BlockProductor.h" />
+    <ClInclude Include="GameBoard.h" />
+    <ClInclude Include="NextBlockView.h" />
+    <ClInclude Include="CellBatchSprite.h" />
+    <ClInclude Include="Constants.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">

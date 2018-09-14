@@ -1,43 +1,59 @@
 #pragma once
 #include "cocos2d.h"
-#include "DropBlock.h"
+#include "Constants.h"
 
-class CCellBoard
+class ICellBoard
+{
+public:
+	ICellBoard() = default;
+	virtual ~ICellBoard() = default;
+
+	virtual void Set(int row, int col, int nValue) = 0;
+	virtual int Get(int row, int col) = 0;
+};
+
+template<int Row,int Col> class CCellBoard : public ICellBoard
 {
 public:
 	enum {
-		kCellMax = 200,
-		kBlockResourcIdxDefault = 7,
-		kBlockResourcIdxMax = 8,
-	};
-
-	enum class DownBlockResult : int
-	{
-		Floating,
-		Dropped,
+		kCellMax = Row * Col
 	};
 
 public:
-	CCellBoard();
-	virtual ~CCellBoard();
+	CCellBoard()
+	{
+		for (int i = 0; i < kCellMax; ++i)
+		{
+			m_cellBoard[i] = kBlockResourcIdxDefault;
+		}
+	};
 
-	void OnDraw(cocos2d::SpriteBatchNode* container);
-	void UpdateDropBlock();
-	void RotateDropBlock(bool bCW);
-	void MoveBlockSide(int nDir);
+	virtual ~CCellBoard()
+	{
 
-	DownBlockResult MoveBlockDown();
-	void CheckLineClear();
+	};
+	
+	virtual void Set(int row, int col, int nValue)
+	{
+		int npos = col + row * Col;
+		if (npos >= 0 && npos < kCellMax)
+		{
+			m_cellBoard[npos] = nValue;
+		}
+	};
 
-	int IsCollisionSideWall(CDropBlock* targetBlock);
-	int IsCollisionFloor(CDropBlock* targetBlock);
-	void DropBlock();
+	virtual int Get(int row, int col)
+	{
+		int npos = col + row * Col;
+		if (npos >= 0 && npos < kCellMax)
+		{
+			return m_cellBoard[npos];
+		}
 
-	bool IsDeadLine();
+		return -1;
+	}
 
-private:
-	CDropBlock m_DropBlock;
-	int arrCellFrameBoard[kCellMax] = { 0, };
-
+protected:
+	int m_cellBoard[kCellMax] = { 0, };
 };
 

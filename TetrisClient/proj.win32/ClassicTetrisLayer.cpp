@@ -14,63 +14,68 @@ CClassicTetrisLayer::~CClassicTetrisLayer()
 //http://cocos2dx.tistory.com/entry/CCSpriteBatchNode-%EC%82%AC%EC%9A%A9%EB%B2%95-cocos2dx
 bool CClassicTetrisLayer::init()
 {
-	pBatchCellContainer = SpriteBatchNode::create("Tetris/source.png");
-	addChild(pBatchCellContainer);
-	m_CellBoard.UpdateDropBlock();
+	m_pGameBoard = CGameBoard::create();
+	addChild(dynamic_cast<Sprite*>(m_pGameBoard));
+	
+	//m_pBlockProductor = CBlockProductor::create();
+	//addChild(dynamic_cast<Sprite*>(m_pBlockProductor));
+
+	__UpdateDropBlock();
 
 	return cocos2d::Layer::init();
 }
 
 void CClassicTetrisLayer::UpdateCellTexture()
 {
-	if (pBatchCellContainer == nullptr)
-	{
-		return;
-	}
-
-	pBatchCellContainer->removeAllChildren();
-	m_CellBoard.OnDraw(pBatchCellContainer);
+	m_pGameBoard->UpdateDisplay();
 }
 
 void CClassicTetrisLayer::UpdateDropBlock()
 {
-	m_CellBoard.UpdateDropBlock();
+	__UpdateDropBlock();
 	UpdateCellTexture();
 }
 
 void CClassicTetrisLayer::RotateBlockLeft()
 {
-	m_CellBoard.RotateDropBlock(true);
+	m_pGameBoard->RotateDropBlock(true);
 	UpdateCellTexture();
 }
 
 void CClassicTetrisLayer::RotateBlockRight()
 {
-	m_CellBoard.RotateDropBlock(false);
+	m_pGameBoard->RotateDropBlock(false);
 	UpdateCellTexture();
 }
 
 void CClassicTetrisLayer::MoveBlockLeft()
 {
-	m_CellBoard.MoveBlockSide(-1);
+	m_pGameBoard->MoveBlockSide(-1);
 	UpdateCellTexture();
 }
 
 void CClassicTetrisLayer::MoveBlockRight()
 {
-	m_CellBoard.MoveBlockSide(1);
+	m_pGameBoard->MoveBlockSide(1);
 	UpdateCellTexture();
 }
 
 void CClassicTetrisLayer::DropBlock()
 {
-	m_CellBoard.DropBlock();
+	m_pGameBoard->DropBlock();
+	__UpdateDropBlock();
+	m_pGameBoard->CheckLineClear();
 	UpdateCellTexture();
 }
 
-CCellBoard::DownBlockResult CClassicTetrisLayer::MoveBlockDown()
+CGameBoard::DownBlockResult CClassicTetrisLayer::MoveBlockDown()
 {
-	CCellBoard::DownBlockResult ret =  m_CellBoard.MoveBlockDown();
+	CGameBoard::DownBlockResult ret = m_pGameBoard->MoveBlockDown();
+	if (ret == CGameBoard::DownBlockResult::Dropped)
+	{
+		m_pGameBoard->CheckLineClear();
+		__UpdateDropBlock();
+	}
 	UpdateCellTexture();
 
 	return ret;
@@ -78,5 +83,21 @@ CCellBoard::DownBlockResult CClassicTetrisLayer::MoveBlockDown()
 
 bool CClassicTetrisLayer::IsDropBlockDeadLine()
 {
-	return m_CellBoard.IsDeadLine();
+	return m_pGameBoard->IsDeadLine();
+}
+
+void CClassicTetrisLayer::__UpdateDropBlock()
+{
+	static int nIdx = 0;
+	nIdx++;
+	if (nIdx >= CDropBlock::BlockType::kBlockTypeMax)
+	{
+		nIdx = 0;
+	}
+	CDropBlock::BlockType nType = static_cast<CDropBlock::BlockType>(nIdx);
+	m_pGameBoard->ResetDropBlock(nType);
+	return;
+	//CDropBlock::BlockType nType = m_BlockProductor.GetBlock(0);
+	//m_BlockProductor.SlideWindow();
+
 }
