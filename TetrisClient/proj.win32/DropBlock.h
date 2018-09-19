@@ -30,6 +30,7 @@ public:
 	virtual void Reset(cocos2d::Vec2&& pos, BlockType nBlockType);
 	void DrawCell(ICellBoard* cellBoard);
 	void UndrawCell(ICellBoard* cellBoard);
+	BlockType GetBlockType();
 
 protected:
 	BlockType m_nType;
@@ -60,9 +61,6 @@ public:
 	cocos2d::Vec2&	GetPos();
 	void SetPos(const cocos2d::Vec2& vecPos);
 
-
-	
-
 	bool DropByGravity() {};
 	void SinkToFloor() {};
 	void AttachBlock() {};
@@ -71,6 +69,5 @@ public:
 	bool __CollisionTest() {};
 
 private:
-	int m_nEditedYPos;
 };
 

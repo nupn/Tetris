@@ -17,8 +17,13 @@ bool CClassicTetrisLayer::init()
 	m_pGameBoard = CGameBoard::create();
 	addChild(dynamic_cast<Sprite*>(m_pGameBoard));
 	
-	//m_pBlockProductor = CBlockProductor::create();
-	//addChild(dynamic_cast<Sprite*>(m_pBlockProductor));
+	m_nextBlockView = CNextBlockView::create();
+	m_nextBlockView->setPosition(Vec2(300, 700));
+	addChild(m_nextBlockView);
+
+	m_nextBlockView2 = CNextBlockView::create();
+	m_nextBlockView2->setPosition(Vec2(300, 600));
+	addChild(m_nextBlockView2);
 
 	__UpdateDropBlock();
 
@@ -88,6 +93,7 @@ bool CClassicTetrisLayer::IsDropBlockDeadLine()
 
 void CClassicTetrisLayer::__UpdateDropBlock()
 {
+	/*
 	static int nIdx = 0;
 	nIdx++;
 	if (nIdx >= CDropBlock::BlockType::kBlockTypeMax)
@@ -97,7 +103,36 @@ void CClassicTetrisLayer::__UpdateDropBlock()
 	CDropBlock::BlockType nType = static_cast<CDropBlock::BlockType>(nIdx);
 	m_pGameBoard->ResetDropBlock(nType);
 	return;
-	//CDropBlock::BlockType nType = m_BlockProductor.GetBlock(0);
-	//m_BlockProductor.SlideWindow();
+	*/
+	CDropBlock::BlockType nType = m_BlockProductor.GetBlock(0);
+	m_BlockProductor.SlideWindow();
+	m_pGameBoard->ResetDropBlock(nType);
 
+	nType = m_BlockProductor.GetBlock(0);
+	if (m_nextBlockView)
+	{
+		m_nextBlockView->SetBlock(nType);
+	}
+	nType = m_BlockProductor.GetBlock(1);
+	if (m_nextBlockView2)
+	{
+		m_nextBlockView2->SetBlock(nType);
+	}
+
+
+	nType = m_BlockProductor.GetBlock(3);
+
+	CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdateBlockDown), this);
+	CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdateBlockDown), this, 2, false);
+}
+
+void CClassicTetrisLayer::OnUpdateBlockDown(float dt)
+{
+	CGameBoard::DownBlockResult ret = m_pGameBoard->MoveBlockDown();
+	if (ret == CGameBoard::DownBlockResult::Dropped)
+	{
+		m_pGameBoard->CheckLineClear();
+		__UpdateDropBlock();
+	}
+	UpdateCellTexture();
 }

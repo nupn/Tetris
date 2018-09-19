@@ -40,7 +40,9 @@ public:
 
 	bool IsDeadLine();
 
+
 private:
+	int m_nBlockMoveDownRange;
 	CDropBlock m_DropBlock;
 	//int arrCellFrameBoard[kCellMax] = { 0, };
 

@@ -4,6 +4,7 @@
 using namespace cocos2d;
 
 CGameBoard::CGameBoard()
+	:m_nBlockMoveDownRange(1)
 {
 }
 
@@ -24,6 +25,7 @@ bool CGameBoard::init()
 void CGameBoard::ResetDropBlock(CDropBlock::BlockType nBlockType)
 {
 	m_DropBlock.Reset(cocos2d::Vec2(4, 19), nBlockType);
+	m_nBlockMoveDownRange = 1;
 }
 
 void CGameBoard::RotateDropBlock(bool bCW)
@@ -64,6 +66,7 @@ void CGameBoard::RotateDropBlock(bool bCW)
 	dropBlock.SetPos(movePos);
 	if (!dropBlock.IsCollision(m_cellBoard))
 	{
+		m_nBlockMoveDownRange = 1 - vecOverlap.y;
 		m_DropBlock = dropBlock;
 		return;
 	}
@@ -155,18 +158,21 @@ CGameBoard::DownBlockResult CGameBoard::MoveBlockDown()
 {
 	CDropBlock dropBlock(m_DropBlock);
 	Vec2 blockPos = dropBlock.GetPos();
-	blockPos.y -= 1;
-	dropBlock.SetPos(blockPos);
-	if ((dropBlock.IsCollisionToFloor()) || dropBlock.IsCollisionToCell(m_cellBoard))
+	for (int i = 0; i < m_nBlockMoveDownRange; ++i)
 	{
-		blockPos.y += 1;
+		blockPos.y -= 1;
 		dropBlock.SetPos(blockPos);
+		if ((dropBlock.IsCollisionToFloor()) || dropBlock.IsCollisionToCell(m_cellBoard))
+		{
+			blockPos.y += 1;
+			dropBlock.SetPos(blockPos);
 
-		m_DropBlock = dropBlock;
+			m_DropBlock = dropBlock;
 
-		m_DropBlock.DrawCell(&m_cellBoard);
+			m_DropBlock.DrawCell(&m_cellBoard);
 
-		return CGameBoard::DownBlockResult::Dropped;
+			return CGameBoard::DownBlockResult::Dropped;
+		}
 	}
 
 	m_DropBlock = dropBlock;

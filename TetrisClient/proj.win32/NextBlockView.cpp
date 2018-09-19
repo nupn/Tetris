@@ -26,8 +26,18 @@ void CNextBlockView::SetBlock(CBlockBase::BlockType blockType)
 		return;
 	}
 
-	blockBase.UndrawCell(&m_cellBoard);
-	blockBase.Reset(Vec2(0,0), blockType);
+	if (blockType < 0 || blockType >= CBlockBase::BlockType::kBlockTypeMax)
+	{
+		return;
+	}
+
+	auto prevType = blockBase.GetBlockType();
+	if (prevType >= 0 && prevType < CBlockBase::BlockType::kBlockTypeMax)
+	{
+		blockBase.UndrawCell(&m_cellBoard);
+	}
+
+	blockBase.Reset(Vec2(1,3), blockType);
 	blockBase.DrawCell(&m_cellBoard);
 
 	Sprite* pSprite;

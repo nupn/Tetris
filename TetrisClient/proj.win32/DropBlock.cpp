@@ -152,10 +152,14 @@ void CBlockBase::UndrawCell(ICellBoard* cellBoard)
 	}
 }
 
+CBlockBase::BlockType CBlockBase::GetBlockType()
+{
+	return m_nType;
+}
+
 void CDropBlock::Reset(cocos2d::Vec2&& vecPos, BlockType nBlockType)
 {
 	CBlockBase::Reset(std::move(vecPos), nBlockType);
-	m_nEditedYPos = 0;
 }
 
 
@@ -242,7 +246,7 @@ bool CDropBlock::IsCollisionToCell(CCellBoard<20, 10>& cellBoard)
 	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
 	{
 		int cellCol = m_nPos.x + blockInfo.x;
-		int cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
+		int cellRow = m_nPos.y - blockInfo.y;
 
 		if (cellBoard.Get(cellRow, cellCol) != BlockType::kBlockTypeMax)
 		{
@@ -268,7 +272,7 @@ bool CDropBlock::GetOverlap(CCellBoard<20, 10>& cellBoard, Vec2& vecOvelap)
 	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
 	{
 		cellCol = m_nPos.x + blockInfo.x;
-		cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
+		cellRow = m_nPos.y - blockInfo.y;
 
 		bool isCollison = false;
 		if (cellBoard.Get(cellRow, cellCol) != BlockType::kBlockTypeMax)
@@ -326,7 +330,7 @@ bool CDropBlock::IsCollision(CCellBoard<20, 10>& cellBoard)
 	for (auto blockInfo : nShapeToBlock[static_cast<int>(m_nType)][static_cast<int>(m_nState)])
 	{
 		cellCol = m_nPos.x + blockInfo.x;
-		cellRow = m_nPos.y - blockInfo.y + m_nEditedYPos;
+		cellRow = m_nPos.y - blockInfo.y;
 
 		if (cellBoard.Get(cellRow, cellCol) != BlockType::kBlockTypeMax)
 		{
