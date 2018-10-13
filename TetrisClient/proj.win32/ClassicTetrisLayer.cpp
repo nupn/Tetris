@@ -134,5 +134,6 @@ void CClassicTetrisLayer::OnUpdateBlockDown(float dt)
 		m_pGameBoard->CheckLineClear();
 		__UpdateDropBlock();
 	}
+	//변화가 없다면 굳이? 전체를
 	UpdateCellTexture();
 }

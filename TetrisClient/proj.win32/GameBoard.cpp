@@ -80,7 +80,76 @@ void CGameBoard::UpdateDisplay()
 		return;
 	}
 
+	//현재블럭
+	if (m_bLineClearEffect)
+	{
+		m_pBatchCellContainer->DrawCellBoard(m_backCellBoard);
+		m_pBatchCellContainer->DrawCellBoardEffect(m_effectCellBoard);
+
+		CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CGameBoard::OnLineClearEffectEnd), this);
+		CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CGameBoard::OnLineClearEffectEnd), this, 0.1f, false);
+	}
+	else
+	{
+		m_pBatchCellContainer->DrawCellBoard(m_cellBoard);
+	}
+	
+	int nType = m_DropBlock.GetBlockType();
+	int nState = m_DropBlock.GetBlockState();
+	auto nPos = m_DropBlock.GetPos();
+	for (auto blockInfo : GetBlockShapes(nType, nState))
+	{
+		int cellCol = nPos.x + blockInfo.x;
+		int cellRow = nPos.y - blockInfo.y;
+		m_pBatchCellContainer->UpdateCell(cellRow, cellCol, nType);
+	}
+
+	//쉐도우 블럭 그리기
+	if (!m_bLineClearEffect)
+	{
+		CDropBlock dropBlock = __GetDropBlock();
+
+		nType = dropBlock.GetBlockType();
+		nState = dropBlock.GetBlockState();
+		nPos = dropBlock.GetPos();
+		for (auto blockInfo : GetBlockShapes(nType, nState))
+		{
+			int cellCol = nPos.x + blockInfo.x;
+			int cellRow = nPos.y - blockInfo.y;
+			m_pBatchCellContainer->UpdateCell(cellRow, cellCol, nType);
+			m_pBatchCellContainer->UpdateCellEffect(cellRow, cellCol, kBlockEffectAlpha);
+		}
+	}
+
+	if (m_bLineClearEffect || m_bLineClear)
+	{
+		m_bLineClearEffect = false;
+		m_bNewBlickEffect = false;
+		m_bLineClear = false;
+	}
+	else if (m_bNewBlickEffect)
+	{
+		nType = m_newBlockInfo.GetBlockType();
+		nState = m_newBlockInfo.GetBlockState();
+		nPos = m_newBlockInfo.GetPos();
+		for (auto blockInfo : GetBlockShapes(nType, nState))
+		{
+			int cellCol = nPos.x + blockInfo.x;
+			int cellRow = nPos.y - blockInfo.y;
+			m_pBatchCellContainer->UpdateCell(cellRow, cellCol, nType);
+			m_pBatchCellContainer->UpdateCellEffect(cellRow, cellCol, kBlockEffectTint);
+		}
+
+		m_bNewBlickEffect = false;
+	}
+
+	
+
+		/*
+	//현재 블럭 그리기
 	m_DropBlock.DrawCell(&m_cellBoard);
+	
+	//일반블럭 그리기
 	for (int row = 0; row < kRow; ++row)
 	{
 		for (int col = 0; col < kCol; ++col)
@@ -90,8 +159,15 @@ void CGameBoard::UpdateDisplay()
 		}
 	}
 
+	//쉐도우 블럭 그리기
+	
+	CDropBlock dropBlock = __GetDropBlock();
+	dropBlock.DrawCell(&m_cellBoard);
 
+
+	dropBlock.UndrawCell(&m_cellBoard);
 	m_DropBlock.UndrawCell(&m_cellBoard);
+	*/
 }
 
 void CGameBoard::MoveBlockSide(int nDir)
@@ -126,7 +202,17 @@ int CGameBoard::IsCollisionFloor(CDropBlock* targetBlock)
 void CGameBoard::DropBlock()
 {
 	//이미충돌주이라면 리턴
+	m_DropBlock = __GetDropBlock();
+	m_DropBlock.DrawCell(&m_cellBoard);
 
+
+	m_bNewBlickEffect = true;
+	m_newBlockInfo = m_DropBlock;
+
+}
+
+CDropBlock CGameBoard::__GetDropBlock()
+{
 	CDropBlock dropBlock(m_DropBlock);
 	Vec2 blockPos = dropBlock.GetPos();
 
@@ -149,9 +235,7 @@ void CGameBoard::DropBlock()
 		}
 	}
 
-	m_DropBlock = dropBlock;
-
-	m_DropBlock.DrawCell(&m_cellBoard);
+	return dropBlock;
 }
 
 CGameBoard::DownBlockResult CGameBoard::MoveBlockDown()
@@ -170,6 +254,9 @@ CGameBoard::DownBlockResult CGameBoard::MoveBlockDown()
 			m_DropBlock = dropBlock;
 
 			m_DropBlock.DrawCell(&m_cellBoard);
+			
+			//m_bNewBlickEffect = true;
+			//m_newBlockInfo = m_DropBlock;
 
 			return CGameBoard::DownBlockResult::Dropped;
 		}
@@ -183,6 +270,9 @@ void CGameBoard::CheckLineClear()
 {
 	int posY = 23 * 20;
 	int idx = 0, row = 0, col = 0;
+
+	m_backCellBoard = m_cellBoard;
+	m_effectCellBoard.Reset(0);
 
 	int nLineClearCnt = 0;
 	for (int row = 0; row < kRow; ++row)
@@ -203,6 +293,11 @@ void CGameBoard::CheckLineClear()
 				m_cellBoard.Set(row, col, kBlockResourcIdxDefault);
 			}
 
+			for (int col = 0; col < kCol; ++col)
+			{
+				m_effectCellBoard.Set(row, col, kBlockEffectTint);
+			}
+
 			++nLineClearCnt;
 		}
 		else
@@ -218,6 +313,24 @@ void CGameBoard::CheckLineClear()
 			}
 		}
 	}
+
+	if (nLineClearCnt >= 3)
+	{
+		m_bLineClearEffect = true;
+	}
+	else
+	{
+		m_bLineClearEffect = false;
+	}
+
+	if (nLineClearCnt >= 0)
+	{
+		m_bLineClear = true;
+	}
+	else
+	{
+		m_bLineClear = false;
+	}
 }
 
 bool CGameBoard::IsDeadLine()
@@ -232,4 +345,10 @@ bool CGameBoard::IsDeadLine()
 	}
 
 	return false;
+}
+
+void CGameBoard::OnLineClearEffectEnd(float dt)
+{
+	CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CGameBoard::OnLineClearEffectEnd), this);
+	UpdateDisplay();
 }

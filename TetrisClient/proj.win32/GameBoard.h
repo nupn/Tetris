@@ -40,13 +40,26 @@ public:
 
 	bool IsDeadLine();
 
+	void OnLineClearEffectEnd(float dt);
+
+private:
+	CDropBlock __GetDropBlock();
 
 private:
 	int m_nBlockMoveDownRange;
 	CDropBlock m_DropBlock;
 	//int arrCellFrameBoard[kCellMax] = { 0, };
-
+	
 	CCellBoard<kRow, kCol> m_cellBoard;
 	CCellBatchSprite<kRow, kCol>* m_pBatchCellContainer = nullptr;
+
+	bool m_bLineClearEffect;
+	bool m_bLineClear;
+	CCellBoard<kRow, kCol> m_backCellBoard;
+	CCellBoard<kRow, kCol> m_effectCellBoard;
+
+
+	bool m_bNewBlickEffect = false;
+	CDropBlock m_newBlockInfo;
 };
 

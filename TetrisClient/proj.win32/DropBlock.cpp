@@ -1,12 +1,12 @@
 #include "DropBlock.h"
 #include "cocos2d.h"
 #include <vector>
-
+/**/
 using namespace cocos2d;
 
 
 //static Vec2 nShapeToBlock[7][4] = {
-static std::vector<Vec2> nShapeToBlock[7][4] = {
+extern const std::vector<Vec2> nShapeToBlock[7][4] = {
 {
 	//작대기
 	{ Vec2::Vec2(1,0), Vec2::Vec2(1,1), Vec2::Vec2(1,2), Vec2::Vec2(1,3) },
@@ -60,7 +60,7 @@ static std::vector<Vec2> nShapeToBlock[7][4] = {
 
 
 
-static Vec2 BlockCore[7] = {
+const extern Vec2 BlockCore[7] = {
 	Vec2::Vec2(1,2), //작대기
 	Vec2::Vec2(1, 2), // ㅗ
 	Vec2::Vec2(0,1), //네모
@@ -69,6 +69,11 @@ static Vec2 BlockCore[7] = {
 	Vec2::Vec2(1,2), //ㄴ
 	Vec2::Vec2(1,2) //역 ㄴ
 };
+
+const std::vector<Vec2>& GetBlockShapes(int nType, int nState)
+{
+	return nShapeToBlock[nType][nState];
+}
 
 
 /*
@@ -155,6 +160,11 @@ void CBlockBase::UndrawCell(ICellBoard* cellBoard)
 CBlockBase::BlockType CBlockBase::GetBlockType()
 {
 	return m_nType;
+}
+
+CBlockBase::BlockState CBlockBase::GetBlockState()
+{
+	return m_nState;
 }
 
 void CDropBlock::Reset(cocos2d::Vec2&& vecPos, BlockType nBlockType)

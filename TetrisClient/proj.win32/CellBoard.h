@@ -9,7 +9,8 @@ public:
 	virtual ~ICellBoard() = default;
 
 	virtual void Set(int row, int col, int nValue) = 0;
-	virtual int Get(int row, int col) = 0;
+	virtual int Get(int row, int col) const = 0;
+	virtual void Reset(int value) = 0;
 };
 
 template<int Row,int Col> class CCellBoard : public ICellBoard
@@ -42,7 +43,7 @@ public:
 		}
 	};
 
-	virtual int Get(int row, int col)
+	virtual int Get(int row, int col) const
 	{
 		int npos = col + row * Col;
 		if (npos >= 0 && npos < kCellMax)
@@ -52,6 +53,15 @@ public:
 
 		return -1;
 	}
+
+	virtual void Reset(int value)
+	{
+		for (int i = 0; i < kCellMax; ++i)
+		{
+			m_cellBoard[i] = value;
+		}
+	}
+
 
 protected:
 	int m_cellBoard[kCellMax] = { 0, };
