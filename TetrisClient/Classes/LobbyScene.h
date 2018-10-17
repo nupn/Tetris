@@ -39,17 +39,11 @@ public:
 	virtual cocos2d::extension::TableViewCell* tableCellAtIndex(cocos2d::extension::TableView *table, ssize_t idx)override;
 	virtual ssize_t numberOfCellsInTableView(cocos2d::extension::TableView *table)override;
 
-	void ResetAllTimer();
-
-
-	void onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event);
-	void onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
-
 	CREATE_FUNC(CLobbyScene);
 
+	void onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
 	virtual void Handle(const ServerMessage::Chat& message) override;
 
-	void OnUpdate(float dt);
 	
 
 	virtual ~CLobbyScene();
@@ -63,17 +57,6 @@ private:
 	deque<string> m_vecChatMsg;
 	int			m_nMaxChatMsg = 100;
 	TableView* m_ptableView;
-
-	int m_nUpdateCnt = 0;
-	int m_nUpdateCntTotal = 0;
-	int m_nUpdatePerTime = 0;
-
-
-	bool m_bMovingLeft = false;
-	bool m_bMovingRight = false;
-	bool m_bMovingDown = false;
-	bool m_bMovingDownDeadLine = false;
-
 };
 
 class ChatScrollView : public cocos2d::extension::TableViewCell

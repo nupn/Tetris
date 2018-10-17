@@ -8,7 +8,6 @@ USING_NS_CC_EXT;
 
 CLobbyScene::~CLobbyScene()
 {
-	CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CLobbyScene::OnUpdate), this);
 }
 
 Scene* CLobbyScene::createScene()
@@ -150,11 +149,8 @@ bool CLobbyScene::init()
 
 
 	auto keyListener = EventListenerKeyboard::create();
-	keyListener->onKeyPressed = CC_CALLBACK_2(CLobbyScene::onKeyPressed, this);
 	keyListener->onKeyReleased = CC_CALLBACK_2(CLobbyScene::onKeyReleased, this);
-
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
-
 
 	AddTrackNode(pTextField);
 
@@ -165,8 +161,6 @@ bool CLobbyScene::init()
 	m_pGameLayer = pgameLayer;
 	pgameLayer->UpdateCellTexture();
 
-
-	CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CLobbyScene::OnUpdate), this, 0, false);
 
 	return true;
 }
@@ -235,151 +229,8 @@ ssize_t CLobbyScene::numberOfCellsInTableView(TableView *table)
 {
 	return m_vecChatMsg.size();
 }
-
 void CLobbyScene::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
-	if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
-	{
-		m_bMovingLeft = false;
-	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
-	{
-		m_bMovingRight = false;
-	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
-	{
-		m_bMovingDown = false;
-	}
-}
-
-void CLobbyScene::ResetAllTimer()
-{
-	m_nUpdateCnt = 0;
-	m_nUpdateCntTotal = 0;
-	m_nUpdatePerTime = 20;
-	m_bMovingDownDeadLine = false;
-}
-
-
-void CLobbyScene::OnUpdate(float dt)
-{
-	//m_nUpdatePerTime = (nMovePerFrameMax - nMovePerFrameMin) - floor((nMovePerFrameMax - nMovePerFrameMin) * floor((m_nUpdateCntTotal * m_nUpdateCntTotal) / nMaxSpeed));
-	
-
-	const int nMoveMinFrame = 10;
-	const int nMovePerFrame = 3;
-
-	if (m_bMovingRight)
-	{
-		m_nUpdateCnt++;
-		++m_nUpdateCntTotal;
-		if (m_nUpdateCntTotal > nMoveMinFrame)
-		{
-			if (m_nUpdateCnt > nMovePerFrame)
-			{
-				m_pGameLayer->MoveBlockRight();
-				m_nUpdateCnt -= nMovePerFrame;
-			}
-		}
-	}
-	else if (m_bMovingLeft)
-	{
-		m_nUpdateCnt++;
-		++m_nUpdateCntTotal;
-		if (m_nUpdateCntTotal > nMoveMinFrame)
-		{
-			if (m_nUpdateCnt > nMovePerFrame)
-			{
-
-				m_pGameLayer->MoveBlockLeft();
-				m_nUpdateCnt -= nMovePerFrame;
-			}
-		}
-	}
-	else if (m_bMovingDown)
-	{
-		m_nUpdateCnt++;
-		++m_nUpdateCntTotal;
-		if (m_nUpdateCntTotal > nMoveMinFrame)
-		{
-			if (m_nUpdateCnt > nMovePerFrame)
-			{
-				if (m_pGameLayer->IsDropBlockDeadLine() && !m_bMovingDownDeadLine)
-				{
-					m_bMovingDownDeadLine = true;
-					m_nUpdateCntTotal = 0;
-					return;
-				}
-
-				CGameBoard::DownBlockResult ret = m_pGameLayer->MoveBlockDown();
-				m_nUpdateCnt -= nMovePerFrame;
-				if (ret == CGameBoard::DownBlockResult::Dropped)
-				{
-					ResetAllTimer();
-				}
-			}
-		}
-	}
-}
-
-
-void CLobbyScene::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
-{
-	if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ALT)
-	{
-		//346
-	}
-
-	if (keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW)
-	{
-		if (m_pGameLayer)
-		{
-			m_pGameLayer->RotateBlockLeft();
-		}
-	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
-	{
-		if (m_pGameLayer && m_bMovingDown == false)
-		{
-			m_pGameLayer->MoveBlockDown();
-			m_nUpdateCnt = 0;
-			m_nUpdateCntTotal = 0;
-			m_nUpdatePerTime = 20;
-			m_bMovingDown = true;
-			m_bMovingDownDeadLine = false;
-		}
-	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
-	{
-		if (m_pGameLayer && m_bMovingLeft == false)
-		{
-			m_pGameLayer->MoveBlockLeft();
-			m_nUpdateCnt = 0;
-			m_nUpdateCntTotal = 0;
-			m_nUpdatePerTime = 20;
-			m_bMovingLeft = true;
-		}
-	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
-	{
-		if (m_pGameLayer && m_bMovingRight == false)
-		{
-			m_pGameLayer->MoveBlockRight();
-			m_nUpdateCnt = 0;
-			m_nUpdateCntTotal = 0;
-			m_nUpdatePerTime = 20;
-			m_bMovingRight = true;
-		}
-	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-	{
-		if (m_pGameLayer)
-		{
-			m_pGameLayer->DropBlock();
-		}
-	}
-
-
 	if (keyCode == EventKeyboard::KeyCode::KEY_ENTER)
 	{
 		TextFieldKR* pTextField = static_cast<TextFieldKR*>(this->getChildByTag(20));
