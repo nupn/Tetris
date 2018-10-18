@@ -51,6 +51,7 @@
     <ClCompile Include="NextBlockView.cpp" />
     <ClCompile Include="CellBatchSprite.cpp" />
     <ClCompile Include="Constants.cpp" />
+    <ClCompile Include="ChatLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -92,6 +93,7 @@
     <ClInclude Include="NextBlockView.h" />
     <ClInclude Include="CellBatchSprite.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="ChatLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">
