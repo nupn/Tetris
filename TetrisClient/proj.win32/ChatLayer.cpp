@@ -2,8 +2,9 @@
 #include "NetworkThread.h"
 
 
-CChatLayer::CChatLayer()
+CChatLayer::CChatLayer(const stChatLayerSetting& setting)
 {
+	m_stSetting = setting;
 }
 
 
@@ -14,38 +15,43 @@ CChatLayer::~CChatLayer()
 
 bool CChatLayer::init()
 {
+	const int nWidth = m_stSetting.nWidth;
+	const int nHeight = m_stSetting.nHeight;
+	const int nInputTextHeight = m_stSetting.nFontSize + 6;
 
+	const int RedDotImgSize = 12;
+
+	//텍스트바 가이드 이미지
 	auto pRedDot = Sprite::create("PosPoint.png");
-	pRedDot->setPosition(500, 100);
-	pRedDot->setScaleX(500.0 / 12.0);
-	pRedDot->setScaleY(50.0 / 12.0);
-
+	pRedDot->setScaleX(nWidth / RedDotImgSize);
+	pRedDot->setScaleY(nInputTextHeight / RedDotImgSize);
 	pRedDot->setAnchorPoint(Vec2::ZERO);
 	this->addChild(pRedDot);
 
 
 	pRedDot = Sprite::create("PosPoint.png");
-	pRedDot->setPosition(100, 200);
-	pRedDot->setScaleX(1000.0 / 12.0);
-	pRedDot->setScaleY(600.0 / 12.0);
+	//pRedDot->setPosition(100, 200);
+	pRedDot->setScaleX(nWidth / RedDotImgSize);
+	pRedDot->setScaleY(nHeight / RedDotImgSize);
 	pRedDot->setOpacity(0.5);
 	pRedDot->setAnchorPoint(Vec2::ZERO);
 
 	this->addChild(pRedDot);
 
 	auto pTextField = TextFieldKR::textFieldWithPlaceHolder("<click here for input>",
-		Size(500, 50),
+		Size(nWidth, nInputTextHeight),
 		TextHAlignment::LEFT,
 		"fonts/malgun.ttf",
-		36);
-	pTextField->setPosition(500, 100);
+		m_stSetting.nFontSize);
 	pTextField->setAnchorPoint(Vec2::ZERO);
 	pTextField->setTag(20);
+	pTextField->setLineBreakWithoutSpace(true);
 	addChild(pTextField);
 	
+	// For Test
 	for (int i = 0; i < 50; ++i)
 	{
-		std::string strTemp = StringUtils::format("%d", i);
+		std::string strTemp = StringUtils::format("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%d", i);
 		m_vecChatMsg.push_back(strTemp);
 	}
 
@@ -58,9 +64,9 @@ bool CChatLayer::init()
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 	AddTrackNode(pTextField);
 
-	TableView* tableView = TableView::create(this, Size(1000, 600));
+	TableView* tableView = TableView::create(this, Size(nWidth, nHeight - nInputTextHeight));
 	tableView->setDirection(ScrollView::Direction::VERTICAL);
-	tableView->setPosition(Vec2(100, 200));
+	tableView->setPosition(Vec2(0, nInputTextHeight + 3));
 	tableView->setDelegate(this);
 	tableView->setBounceable(false);
 	tableView->setVerticalFillOrder(TableView::VerticalFillOrder::BOTTOM_UP);
@@ -105,11 +111,14 @@ void CChatLayer::tableCellTouched(TableView* table, TableViewCell* cell)
 
 Size CChatLayer::tableCellSizeForIndex(TableView *table, ssize_t idx)
 {
-	return Size(100, 30);
+	return Size(m_stSetting.nWidth, m_stSetting.nFontSize *2 + 3);
 }
 
 TableViewCell* CChatLayer::tableCellAtIndex(TableView *table, ssize_t idx)
 {
+	const int nWidth = m_stSetting.nWidth;
+	const int nInputTextHeight = m_stSetting.nFontSize + 3;
+
 	//auto string = StringUtils::format("aaaa:aaaaaaaaaaaaaaaasdsda%ld", static_cast<long>(idx));
 	string msg;
 	if (idx < m_vecChatMsg.size())
@@ -121,9 +130,10 @@ TableViewCell* CChatLayer::tableCellAtIndex(TableView *table, ssize_t idx)
 	if (!cell) {
 		cell = new (std::nothrow) TableViewCell();
 		cell->autorelease();
-		cell->setContentSize(Size(100, 30));
+		cell->setContentSize(Size(nWidth, nInputTextHeight * 2));
 
-		auto label = Label::createWithTTF(msg, "fonts/malgun.ttf", 32.0);
+		auto label = Label::createWithTTF(msg, "fonts/malgun.ttf", m_stSetting.nFontSize);
+		label->setLineBreakWithoutSpace(true);
 		label->setPosition(Vec2::ZERO);
 		label->setAnchorPoint(Vec2::ZERO);
 		label->setTag(123);
@@ -146,6 +156,7 @@ ssize_t CChatLayer::numberOfCellsInTableView(TableView *table)
 
 void CChatLayer::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
+
 	if (keyCode == EventKeyboard::KeyCode::KEY_ENTER)
 	{
 		TextFieldKR* pTextField = static_cast<TextFieldKR*>(this->getChildByTag(20));
@@ -155,7 +166,22 @@ void CChatLayer::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 			m_vecChatMsg.pop_front();
 		}
 
-		//m_vecChatMsg.push_back(pTextField->GetString());
+		m_vecChatMsg.push_back(pTextField->GetString());
+		pTextField->Clear();
+		m_ptableView->reloadData();
+
+		bar->ContentRefresh(m_ptableView->getContentSize().height);
+		bar->OffsetRefresh(m_ptableView->getContentOffset().y);
+	}
+	/*
+	if (keyCode == EventKeyboard::KeyCode::KEY_ENTER)
+	{
+		TextFieldKR* pTextField = static_cast<TextFieldKR*>(this->getChildByTag(20));
+
+		if (m_vecChatMsg.size() >= m_nMaxChatMsg)
+		{
+			m_vecChatMsg.pop_front();
+		}
 
 		ServerMessage::Chat sendMessage;
 		sendMessage.set_dst_id(10);
@@ -165,13 +191,8 @@ void CChatLayer::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 		CNetworkThread::GetMutable().SendPacket(ServerMessage::CHAT, &sendMessage);
 
 		pTextField->Clear();
-		/*
-		m_ptableView->reloadData();
-
-		bar->ContentRefresh(m_ptableView->getContentSize().height);
-		bar->OffsetRefresh(m_ptableView->getContentOffset().y);
-		//*/
 	}
+	*/
 }
 
 

@@ -52,6 +52,9 @@
     <ClCompile Include="CellBatchSprite.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="ChatLayer.cpp" />
+    <ClCompile Include="GameStateFontEffect.cpp" />
+    <ClCompile Include="BasicTetrisLayer.cpp" />
+    <ClCompile Include="RemoteTetrisLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -94,6 +97,9 @@
     <ClInclude Include="CellBatchSprite.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="ChatLayer.h" />
+    <ClInclude Include="GameStateFontEffect.h" />
+    <ClInclude Include="BasicTetrisLayer.h" />
+    <ClInclude Include="RemoteTetrisLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">

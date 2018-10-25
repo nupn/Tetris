@@ -22,10 +22,31 @@ bool CGameBoard::init()
 	return Sprite::init();
 }
 
-void CGameBoard::ResetDropBlock(CDropBlock::BlockType nBlockType)
+bool CGameBoard::ResetDropBlock(CDropBlock::BlockType nBlockType)
 {
 	m_DropBlock.Reset(cocos2d::Vec2(4, 19), nBlockType);
+
+	bool isCollision = false;
+	for (int i = 0; i < 3; ++i)
+	{
+		if (!m_DropBlock.IsCollision(m_cellBoard))
+		{
+			break;
+		}
+
+		auto movePos = m_DropBlock.GetPos();
+		movePos.y += 1;
+		m_DropBlock.SetPos(movePos);
+		isCollision = true;
+	}
+
+	if (isCollision)
+	{
+		return false;
+	}
+
 	m_nBlockMoveDownRange = 1;
+	return true;
 }
 
 void CGameBoard::RotateDropBlock(bool bCW)

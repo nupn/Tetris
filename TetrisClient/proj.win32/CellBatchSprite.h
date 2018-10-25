@@ -54,7 +54,7 @@ public:
 			{
 				pSprite = Sprite::createWithTexture(getTexture());
 				pSprite->setTag(col + row * Col);
-				pSprite->setPosition(Vec2(col * 23, kStartYPos + (row * 23)));
+				pSprite->setPosition(Vec2(col * 23, row * 23));
 				addChild(pSprite);
 			}
 		}
@@ -133,7 +133,8 @@ public:
 
 		if (nState >= 0 && nState < kBlockResourcIdxMax)
 		{
-			pSprite->setPosition(Vec2(nCol * 23, kStartYPos + (nRow * 23)));
+			pSprite->setPosition(Vec2(nCol * 23, nRow * 23));
+			pSprite->setAnchorPoint(Vec2::ZERO);
 			pSprite->setTextureRect(imgRect[nState]);
 			pSprite->setOpacity(255);
 			pSprite->setVisible(true);

@@ -9,7 +9,12 @@ using namespace std;
 USING_NS_CC;
 USING_NS_CC_EXT;
 
-
+struct stChatLayerSetting
+{
+	int nWidth = 0;
+	int nHeight = 0;
+	int nFontSize = 0;
+};
 
 
 class CChatLayer : public Layer,
@@ -18,8 +23,23 @@ class CChatLayer : public Layer,
 	public cocos2d::extension::TableViewDelegate
 {
 public:
-	CREATE_FUNC(CChatLayer);
-	CChatLayer();
+	static CChatLayer* create(const stChatLayerSetting& setting)
+	{ 
+		CChatLayer *pRet = new(std::nothrow) CChatLayer(setting);
+		if (pRet && pRet->init()) 
+		{
+			pRet->autorelease(); 
+			return pRet; 
+		} 
+		else 
+		{ 
+			delete pRet;
+			pRet = nullptr;
+			return nullptr;
+		}
+	};
+
+	CChatLayer(const stChatLayerSetting& setting);
 	virtual ~CChatLayer();
 
 	virtual bool init() override;
@@ -41,7 +61,7 @@ private:
 	deque<string> m_vecChatMsg;
 	int			m_nMaxChatMsg = 100;
 	TableView* m_ptableView;
-
+	stChatLayerSetting m_stSetting;
 };
 
 

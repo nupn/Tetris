@@ -19,11 +19,11 @@ bool CClassicTetrisLayer::init()
 	addChild(dynamic_cast<Sprite*>(m_pGameBoard));
 	
 	m_nextBlockView = CNextBlockView::create();
-	m_nextBlockView->setPosition(Vec2(300, 700));
+	m_nextBlockView->setPosition(Vec2(240, 460 - (23 *4)));
 	addChild(m_nextBlockView);
 
 	m_nextBlockView2 = CNextBlockView::create();
-	m_nextBlockView2->setPosition(Vec2(300, 600));
+	m_nextBlockView2->setPosition(Vec2(240, 460 - (23 * 4)- (23 * 4) - 23));
 	addChild(m_nextBlockView2);
 
 
@@ -40,6 +40,26 @@ bool CClassicTetrisLayer::init()
 
 
 	CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdate), this, 0, false);
+
+	m_pGameResultEffect = CGameStateFontEffect::create();
+	m_pGameResultEffect->setAnchorPoint(Vec2::Vec2(0.5, 0.5));
+	m_pGameResultEffect->setPosition(Vec2::Vec2(115, 230));
+	addChild(m_pGameResultEffect);
+	//m_pGameResultEffect->SetState(kGameStateReady);
+
+	m_nGameState = kPlay;
+	/*
+	if (m_nGameState == kPrepare && m_bChangeGameState == false)
+	{
+		if (m_pGameResultEffect != nullptr)
+		{
+			m_pGameResultEffect->SetState(CGameStateFontEffect::kPrepareHost);
+			m_pGameResultEffect->PlayEffect(std::bind(&CClassicTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
+			m_bChangeGameState = true;
+		}
+	}
+	*/
+
 	return cocos2d::Layer::init();
 }
 
@@ -119,7 +139,14 @@ void CClassicTetrisLayer::__UpdateDropBlock()
 	*/
 	CDropBlock::BlockType nType = m_BlockProductor.GetBlock(0);
 	m_BlockProductor.SlideWindow();
-	m_pGameBoard->ResetDropBlock(nType);
+	if (!m_pGameBoard->ResetDropBlock(nType))
+	{
+		m_pGameResultEffect->SetState(CGameStateFontEffect::kDead);
+		m_pGameResultEffect->PlayEffect(std::bind(&CClassicTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
+
+		m_nGameState = kReady;
+		return;
+	}
 
 	nType = m_BlockProductor.GetBlock(0);
 	if (m_nextBlockView)
@@ -135,12 +162,17 @@ void CClassicTetrisLayer::__UpdateDropBlock()
 
 	nType = m_BlockProductor.GetBlock(3);
 
-	CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdateBlockDown), this);
-	CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdateBlockDown), this, 2, false);
+	CCDirector::getInstance()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdateBlockDown), this);
+	CCDirector::getInstance()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdateBlockDown), this, 2, false);
 }
 
 void CClassicTetrisLayer::OnUpdateBlockDown(float dt)
 {
+	if (m_nGameState != kPlay)
+	{
+		return;
+	}
+
 	CGameBoard::DownBlockResult ret = m_pGameBoard->MoveBlockDown();
 	if (ret == CGameBoard::DownBlockResult::Dropped)
 	{
@@ -155,6 +187,10 @@ void CClassicTetrisLayer::OnUpdateBlockDown(float dt)
 
 void CClassicTetrisLayer::OnUpdate(float dt)
 {
+	if (m_nGameState != kPlay)
+	{
+		return;
+	}
 	//m_nUpdatePerTime = (nMovePerFrameMax - nMovePerFrameMin) - floor((nMovePerFrameMax - nMovePerFrameMin) * floor((m_nUpdateCntTotal * m_nUpdateCntTotal) / nMaxSpeed));
 
 
@@ -242,51 +278,85 @@ void CClassicTetrisLayer::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* e
 
 void CClassicTetrisLayer::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
-	if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ALT)
+	if (m_nGameState == kPlay)
 	{
-		//346
-	}
+		if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ALT)
+		{
+			//346
+		}
 
-	if (keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW)
-	{
-		RotateBlockLeft();
-	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
-	{
-		if (m_bMovingDown == false)
+		if (keyCode == EventKeyboard::KeyCode::KEY_UP_ARROW)
 		{
-			MoveBlockDown();
-			m_nUpdateCnt = 0;
-			m_nUpdateCntTotal = 0;
-			m_nUpdatePerTime = 20;
-			m_bMovingDown = true;
-			m_bMovingDownDeadLine = false;
+			RotateBlockLeft();
+		}
+		else if (keyCode == EventKeyboard::KeyCode::KEY_DOWN_ARROW)
+		{
+			if (m_bMovingDown == false)
+			{
+				MoveBlockDown();
+				m_nUpdateCnt = 0;
+				m_nUpdateCntTotal = 0;
+				m_nUpdatePerTime = 20;
+				m_bMovingDown = true;
+				m_bMovingDownDeadLine = false;
+			}
+		}
+		else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
+		{
+			if (m_bMovingLeft == false)
+			{
+				MoveBlockLeft();
+				m_nUpdateCnt = 0;
+				m_nUpdateCntTotal = 0;
+				m_nUpdatePerTime = 20;
+				m_bMovingLeft = true;
+			}
+		}
+		else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
+		{
+			if (m_bMovingRight == false)
+			{
+				MoveBlockRight();
+				m_nUpdateCnt = 0;
+				m_nUpdateCntTotal = 0;
+				m_nUpdatePerTime = 20;
+				m_bMovingRight = true;
+			}
+		}
+		else if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
+		{
+			DropBlock();
 		}
 	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
+}
+
+
+void CClassicTetrisLayer::OnEffectEnd(int nEndState)
+{
+	switch (m_nGameState)
 	{
-		if (m_bMovingLeft == false)
+	case kPrepare:
+		if (m_bChangeGameState)
 		{
-			MoveBlockLeft();
-			m_nUpdateCnt = 0;
-			m_nUpdateCntTotal = 0;
-			m_nUpdatePerTime = 20;
-			m_bMovingLeft = true;
+			m_pGameResultEffect->SetState(kReady);
+			m_pGameResultEffect->PlayEffect(std::bind(&CClassicTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
+
+			m_nGameState = kReady;
 		}
-	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_RIGHT_ARROW)
-	{
-		if (m_bMovingRight == false)
+		break;
+	case kReady:
 		{
-			MoveBlockRight();
-			m_nUpdateCnt = 0;
-			m_nUpdateCntTotal = 0;
-			m_nUpdatePerTime = 20;
-			m_bMovingRight = true;
+		//원래는 이떄 서버로 요청보내기해야함!!!
+			m_pGameResultEffect->Clear();
+			m_nGameState = kPlay;
 		}
+		break;
+	default:
+		break;
 	}
-	else if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
-	{
-		DropBlock();
-	}
+}
+
+void OnEffectEnd(int nEffectType)
+{
+
 }

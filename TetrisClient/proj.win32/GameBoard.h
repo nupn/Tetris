@@ -27,7 +27,7 @@ public:
 
 	virtual bool init() override;
 	void UpdateDisplay();
-	void ResetDropBlock(CDropBlock::BlockType nBlockType);
+	bool ResetDropBlock(CDropBlock::BlockType nBlockType);
 	void RotateDropBlock(bool bCW);
 	void MoveBlockSide(int nDir);
 
