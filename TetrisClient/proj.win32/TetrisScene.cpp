@@ -1,20 +1,27 @@
-#include "LobbyScene.h"
+#include "TetrisScene.h"
 #include "SimpleAudioEngine.h"
 #include "TextFieldKR.h"
 #include "NetworkThread.h"
 
 
-CLobbyScene::~CLobbyScene()
+CTetrisScene::~CTetrisScene()
 {
 }
 
-Scene* CLobbyScene::createScene()
+Scene* CTetrisScene::createScene()
 {
-	return CLobbyScene::create();
+	return CTetrisScene::create();
+}
+
+
+static void problemLoading(const char* filename)
+{
+	printf("Error while loading: %s\n", filename);
+	printf("Depending on how you compiled you might have to add 'Resources/' in front of filenames in HelloWorldScene.cpp\n");
 }
 
 // on "init" you need to initialize your instance
-bool CLobbyScene::init()
+bool CTetrisScene::init()
 {
 	//////////////////////////////
 	// 1. super init first
@@ -35,13 +42,13 @@ bool CLobbyScene::init()
 	auto closeItem = MenuItemImage::create(
 		"CloseNormal.png",
 		"CloseSelected.png",
-		CC_CALLBACK_1(CLobbyScene::menuCloseCallback, this));
+		CC_CALLBACK_1(CTetrisScene::menuCloseCallback, this));
 
 	if (closeItem == nullptr ||
 		closeItem->getContentSize().width <= 0 ||
 		closeItem->getContentSize().height <= 0)
 	{
-
+		problemLoading("'CloseNormal.png' and 'CloseSelected.png'");
 	}
 	else
 	{
@@ -50,21 +57,8 @@ bool CLobbyScene::init()
 		closeItem->setPosition(Vec2(x, y));
 	}
 
-	auto nextButton = MenuItemImage::create(
-		"ArrowRight01.png",
-		"ArrowRight02.png",
-		CC_CALLBACK_1(CLobbyScene::menuCloseCallback, this));
-	nextButton->setPosition(Vec2::Vec2(origin.x + visibleSize.width/2  - nextButton->getContentSize().width / 2 + 30,  300));
-
-	auto prevButton = MenuItemImage::create(
-		"ArrowLeft01.png",
-		"ArrowLeft02.png",
-		CC_CALLBACK_1(CLobbyScene::menuCloseCallback, this));
-	prevButton->setPosition(Vec2::Vec2(origin.x + visibleSize.width / 2 - prevButton->getContentSize().width / 2 - 30, 300));
-
-
 	// create menu, it's an autorelease object
-	auto menu = Menu::create(closeItem, prevButton, nextButton, NULL);
+	auto menu = Menu::create(closeItem, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 1);
 
@@ -93,33 +87,28 @@ bool CLobbyScene::init()
 	//pInputText->_trackNode = pTextField;
 
 
-	CRoomListLayer* pRoomList = CRoomListLayer::create();
-	pRoomList->setPosition(-290, 350);
-	pRoomList->setAnchorPoint(Vec2::ZERO);
-	addChild(pRoomList);
-
-	m_pRoomListLayer = pRoomList;
-
-
-
-
+	COwnerTetrisLayer* pgameLayer = COwnerTetrisLayer::create();
+	pgameLayer->setPosition(600, 150);
+	addChild(pgameLayer);
+	m_pGameLayer = pgameLayer;
+	pgameLayer->UpdateCellTexture();
 
 
 	return true;
 }
 
 
-void CLobbyScene::menuCloseCallback(Ref* pSender)
+void CTetrisScene::menuCloseCallback(Ref* pSender)
 {
 	//Close the cocos2d-x game scene and quit the application
-	//Director::getInstance()->end();
+	Director::getInstance()->end();
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 	exit(0);
 #endif
 }
 
-void CLobbyScene::Handle(const ServerMessage::Chat& message)
+void CTetrisScene::Handle(const ServerMessage::Chat& message)
 {
 	if (!m_pChatLayer)
 	{

@@ -2,7 +2,7 @@
 class RemoteTetrisLayer
 {
 public:
-	RemoteTetrisLayer();
-	~RemoteTetrisLayer();
+	//RemoteTetrisLayer();
+	//~RemoteTetrisLayer();
 };
 

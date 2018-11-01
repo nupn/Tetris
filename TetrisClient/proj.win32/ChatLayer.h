@@ -9,6 +9,8 @@ using namespace std;
 USING_NS_CC;
 USING_NS_CC_EXT;
 
+
+//여러줄 입력처리
 struct stChatLayerSetting
 {
 	int nWidth = 0;

@@ -1,5 +1,6 @@
 #include "AppDelegate.h"
 #include "LobbyScene.h"
+#include "..\proj.win32\LoginScene.h"
 
 #include <imm.h>
 #include "boost\serialization\singleton.hpp"
@@ -22,10 +23,10 @@ using namespace CocosDenshion;
 
 USING_NS_CC;
 //1500 927
-static cocos2d::Size designResolutionSize = cocos2d::Size(1500, 927);
-static cocos2d::Size smallResolutionSize = cocos2d::Size(1500, 927);
-static cocos2d::Size mediumResolutionSize = cocos2d::Size(1500, 927);
-static cocos2d::Size largeResolutionSize = cocos2d::Size(1500, 927);
+static cocos2d::Size designResolutionSize = cocos2d::Size(1200, 742);
+static cocos2d::Size smallResolutionSize = cocos2d::Size(1200, 742);
+static cocos2d::Size mediumResolutionSize = cocos2d::Size(1200, 742);
+static cocos2d::Size largeResolutionSize = cocos2d::Size(1200, 742);
 
 AppDelegate::AppDelegate()
 {
@@ -98,15 +99,15 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
 
     // create a scene. it's an autorelease object
-    auto scene = CLobbyScene::createScene();
+    auto scene = CLoginScene::createScene();
 	//CNetworkThread::GetMutable().Start("127.0.0.1", 19897, this);
 	
 	CNetworkThread& net = boost::serialization::singleton<CNetworkThread>::get_mutable_instance();
 	net.Start("127.0.0.1", 19897, dynamic_cast<PacketHandler*>(scene));
+    director->runWithScene(scene);
 
 
     // run
-    director->runWithScene(scene);
 
 	HWND hwnd = Director::getInstance()->getOpenGLView()->getWin32Window();
 

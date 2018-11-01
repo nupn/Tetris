@@ -153,6 +153,8 @@ public:
 
 	void Clear();
 
+	void setInputMax(int nMax);
+
 protected:
 	//////////////////////////////////////////////////////////////////////////
 	// IMEDelegate interface
@@ -201,7 +203,6 @@ private:
 	void UpdateString();
 
 private:
-	class LengthStack;
-	LengthStack * _lens;
+	int m_nInputMax = 0;
 	NPCL::CKoreanIME m_koreanIME;
 };

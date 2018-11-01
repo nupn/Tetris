@@ -4,19 +4,19 @@
 #include "cocos2d.h"
 
 #include "../proj.win32/PacketHandler.h"
+#include "..\proj.win32\OwnerTetrisLayer.h"
 #include "../proj.win32/ChatLayer.h"
-#include "../proj.win32/RoomListLayer.h"
 
 
 #include <string>
 
 using namespace std;
 
-class CLobbyScene : public cocos2d::Scene, public PacketHandler
+class CTetrisScene : public cocos2d::Scene, public PacketHandler
 {
 public:
-	CREATE_FUNC(CLobbyScene);
-	virtual ~CLobbyScene();
+	CREATE_FUNC(CTetrisScene);
+	virtual ~CTetrisScene();
 	static cocos2d::Scene* createScene();
 	virtual bool init();
 
@@ -26,7 +26,7 @@ public:
 	virtual void Handle(const ServerMessage::Chat& message) override;
 
 private:
-	CRoomListLayer* m_pRoomListLayer = nullptr;
+	COwnerTetrisLayer* m_pGameLayer = nullptr;
 	CChatLayer* m_pChatLayer = nullptr;
 };
 

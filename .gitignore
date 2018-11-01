@@ -21,6 +21,7 @@ proj.android-studio/
 proj.ios_mac/
 proj.linux/
 Debug.win32/
+Release.win32/
 
 # Visual Studio profiler
 *.psess

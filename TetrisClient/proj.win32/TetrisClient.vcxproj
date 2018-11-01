@@ -160,17 +160,21 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClCompile Include="CellBatchSprite.cpp" />
     <ClCompile Include="CellBoard.cpp" />
     <ClCompile Include="ChatLayer.cpp" />
-    <ClCompile Include="ClassicTetrisLayer.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="DropBlock.cpp" />
     <ClCompile Include="GameBoard.cpp" />
     <ClCompile Include="GameStateFontEffect.cpp" />
     <ClCompile Include="KeyboardNotificationLayer.cpp" />
+    <ClCompile Include="LoginInputLayer.cpp" />
+    <ClCompile Include="LoginScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NextBlockView.cpp" />
+    <ClCompile Include="OwnerTetrisLayer.cpp" />
     <ClCompile Include="PacketHandler.cpp" />
     <ClCompile Include="RemoteTetrisLayer.cpp" />
+    <ClCompile Include="RoomListLayer.cpp" />
     <ClCompile Include="Socket.cpp" />
+    <ClCompile Include="TetrisScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\AppDelegate.h" />
@@ -185,17 +189,21 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClInclude Include="CellBatchSprite.h" />
     <ClInclude Include="CellBoard.h" />
     <ClInclude Include="ChatLayer.h" />
-    <ClInclude Include="ClassicTetrisLayer.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DropBlock.h" />
     <ClInclude Include="GameBoard.h" />
     <ClInclude Include="GameStateFontEffect.h" />
     <ClInclude Include="KeyboardNotificationLayer.h" />
+    <ClInclude Include="LoginInputLayer.h" />
+    <ClInclude Include="LoginScene.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="NextBlockView.h" />
+    <ClInclude Include="OwnerTetrisLayer.h" />
     <ClInclude Include="PacketHandler.h" />
     <ClInclude Include="RemoteTetrisLayer.h" />
+    <ClInclude Include="RoomListLayer.h" />
     <ClInclude Include="Socket.h" />
+    <ClInclude Include="TetrisScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cocos2d\cocos\2d\libcocos2d.vcxproj">

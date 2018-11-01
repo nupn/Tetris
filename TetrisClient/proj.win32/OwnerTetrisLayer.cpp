@@ -1,19 +1,19 @@
-#include "ClassicTetrisLayer.h"
+#include "OwnerTetrisLayer.h"
 
 using namespace cocos2d;
 
-CClassicTetrisLayer::CClassicTetrisLayer()
+COwnerTetrisLayer::COwnerTetrisLayer()
 {
 }
 
 
-CClassicTetrisLayer::~CClassicTetrisLayer()
+COwnerTetrisLayer::~COwnerTetrisLayer()
 {
-	CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdate), this);
+	CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(COwnerTetrisLayer::OnUpdate), this);
 }
 
 //http://cocos2dx.tistory.com/entry/CCSpriteBatchNode-%EC%82%AC%EC%9A%A9%EB%B2%95-cocos2dx
-bool CClassicTetrisLayer::init()
+bool COwnerTetrisLayer::init()
 {
 	m_pGameBoard = CGameBoard::create();
 	addChild(dynamic_cast<Sprite*>(m_pGameBoard));
@@ -29,8 +29,8 @@ bool CClassicTetrisLayer::init()
 
 
 	auto keyListener = EventListenerKeyboard::create();
-	keyListener->onKeyPressed = CC_CALLBACK_2(CClassicTetrisLayer::onKeyPressed, this);
-	keyListener->onKeyReleased = CC_CALLBACK_2(CClassicTetrisLayer::onKeyReleased, this);
+	keyListener->onKeyPressed = CC_CALLBACK_2(COwnerTetrisLayer::onKeyPressed, this);
+	keyListener->onKeyReleased = CC_CALLBACK_2(COwnerTetrisLayer::onKeyReleased, this);
 
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
 
@@ -39,7 +39,7 @@ bool CClassicTetrisLayer::init()
 	__UpdateDropBlock();
 
 
-	CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdate), this, 0, false);
+	CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(COwnerTetrisLayer::OnUpdate), this, 0, false);
 
 	m_pGameResultEffect = CGameStateFontEffect::create();
 	m_pGameResultEffect->setAnchorPoint(Vec2::Vec2(0.5, 0.5));
@@ -54,7 +54,7 @@ bool CClassicTetrisLayer::init()
 		if (m_pGameResultEffect != nullptr)
 		{
 			m_pGameResultEffect->SetState(CGameStateFontEffect::kPrepareHost);
-			m_pGameResultEffect->PlayEffect(std::bind(&CClassicTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
+			m_pGameResultEffect->PlayEffect(std::bind(&COwnerTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
 			m_bChangeGameState = true;
 		}
 	}
@@ -63,42 +63,42 @@ bool CClassicTetrisLayer::init()
 	return cocos2d::Layer::init();
 }
 
-void CClassicTetrisLayer::UpdateCellTexture()
+void COwnerTetrisLayer::UpdateCellTexture()
 {
 	m_pGameBoard->UpdateDisplay();
 }
 
-void CClassicTetrisLayer::UpdateDropBlock()
+void COwnerTetrisLayer::UpdateDropBlock()
 {
 	__UpdateDropBlock();
 	UpdateCellTexture();
 }
 
-void CClassicTetrisLayer::RotateBlockLeft()
+void COwnerTetrisLayer::RotateBlockLeft()
 {
 	m_pGameBoard->RotateDropBlock(true);
 	UpdateCellTexture();
 }
 
-void CClassicTetrisLayer::RotateBlockRight()
+void COwnerTetrisLayer::RotateBlockRight()
 {
 	m_pGameBoard->RotateDropBlock(false);
 	UpdateCellTexture();
 }
 
-void CClassicTetrisLayer::MoveBlockLeft()
+void COwnerTetrisLayer::MoveBlockLeft()
 {
 	m_pGameBoard->MoveBlockSide(-1);
 	UpdateCellTexture();
 }
 
-void CClassicTetrisLayer::MoveBlockRight()
+void COwnerTetrisLayer::MoveBlockRight()
 {
 	m_pGameBoard->MoveBlockSide(1);
 	UpdateCellTexture();
 }
 
-void CClassicTetrisLayer::DropBlock()
+void COwnerTetrisLayer::DropBlock()
 {
 	m_pGameBoard->DropBlock();
 	__UpdateDropBlock();
@@ -106,7 +106,7 @@ void CClassicTetrisLayer::DropBlock()
 	UpdateCellTexture();
 }
 
-CGameBoard::DownBlockResult CClassicTetrisLayer::MoveBlockDown()
+CGameBoard::DownBlockResult COwnerTetrisLayer::MoveBlockDown()
 {
 	CGameBoard::DownBlockResult ret = m_pGameBoard->MoveBlockDown();
 	if (ret == CGameBoard::DownBlockResult::Dropped)
@@ -119,12 +119,12 @@ CGameBoard::DownBlockResult CClassicTetrisLayer::MoveBlockDown()
 	return ret;
 }
 
-bool CClassicTetrisLayer::IsDropBlockDeadLine()
+bool COwnerTetrisLayer::IsDropBlockDeadLine()
 {
 	return m_pGameBoard->IsDeadLine();
 }
 
-void CClassicTetrisLayer::__UpdateDropBlock()
+void COwnerTetrisLayer::__UpdateDropBlock()
 {
 	/*
 	static int nIdx = 0;
@@ -142,7 +142,7 @@ void CClassicTetrisLayer::__UpdateDropBlock()
 	if (!m_pGameBoard->ResetDropBlock(nType))
 	{
 		m_pGameResultEffect->SetState(CGameStateFontEffect::kDead);
-		m_pGameResultEffect->PlayEffect(std::bind(&CClassicTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
+		m_pGameResultEffect->PlayEffect(std::bind(&COwnerTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
 
 		m_nGameState = kReady;
 		return;
@@ -162,11 +162,11 @@ void CClassicTetrisLayer::__UpdateDropBlock()
 
 	nType = m_BlockProductor.GetBlock(3);
 
-	CCDirector::getInstance()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdateBlockDown), this);
-	CCDirector::getInstance()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(CClassicTetrisLayer::OnUpdateBlockDown), this, 2, false);
+	CCDirector::getInstance()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(COwnerTetrisLayer::OnUpdateBlockDown), this);
+	CCDirector::getInstance()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(COwnerTetrisLayer::OnUpdateBlockDown), this, 2, false);
 }
 
-void CClassicTetrisLayer::OnUpdateBlockDown(float dt)
+void COwnerTetrisLayer::OnUpdateBlockDown(float dt)
 {
 	if (m_nGameState != kPlay)
 	{
@@ -185,7 +185,7 @@ void CClassicTetrisLayer::OnUpdateBlockDown(float dt)
 
 
 
-void CClassicTetrisLayer::OnUpdate(float dt)
+void COwnerTetrisLayer::OnUpdate(float dt)
 {
 	if (m_nGameState != kPlay)
 	{
@@ -251,7 +251,7 @@ void CClassicTetrisLayer::OnUpdate(float dt)
 }
 
 
-void CClassicTetrisLayer::ResetAllTimer()
+void COwnerTetrisLayer::ResetAllTimer()
 {
 	m_nUpdateCnt = 0;
 	m_nUpdateCntTotal = 0;
@@ -260,7 +260,7 @@ void CClassicTetrisLayer::ResetAllTimer()
 }
 
 
-void CClassicTetrisLayer::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
+void COwnerTetrisLayer::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event)
 {
 	if (keyCode == EventKeyboard::KeyCode::KEY_LEFT_ARROW)
 	{
@@ -276,7 +276,7 @@ void CClassicTetrisLayer::onKeyReleased(EventKeyboard::KeyCode keyCode, Event* e
 	}
 }
 
-void CClassicTetrisLayer::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
+void COwnerTetrisLayer::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* event)
 {
 	if (m_nGameState == kPlay)
 	{
@@ -331,7 +331,7 @@ void CClassicTetrisLayer::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* ev
 }
 
 
-void CClassicTetrisLayer::OnEffectEnd(int nEndState)
+void COwnerTetrisLayer::OnEffectEnd(int nEndState)
 {
 	switch (m_nGameState)
 	{
@@ -339,7 +339,7 @@ void CClassicTetrisLayer::OnEffectEnd(int nEndState)
 		if (m_bChangeGameState)
 		{
 			m_pGameResultEffect->SetState(kReady);
-			m_pGameResultEffect->PlayEffect(std::bind(&CClassicTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
+			m_pGameResultEffect->PlayEffect(std::bind(&COwnerTetrisLayer::OnEffectEnd, this, std::placeholders::_1));
 
 			m_nGameState = kReady;
 		}

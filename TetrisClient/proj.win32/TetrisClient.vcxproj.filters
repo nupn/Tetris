@@ -41,7 +41,6 @@
     <ClCompile Include="..\Classes\ServerMessage.pb.cc">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="ClassicTetrisLayer.cpp" />
     <ClCompile Include="DropBlock.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -55,6 +54,13 @@
     <ClCompile Include="GameStateFontEffect.cpp" />
     <ClCompile Include="BasicTetrisLayer.cpp" />
     <ClCompile Include="RemoteTetrisLayer.cpp" />
+    <ClCompile Include="OwnerTetrisLayer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="LoginScene.cpp" />
+    <ClCompile Include="LoginInputLayer.cpp" />
+    <ClCompile Include="TetrisScene.cpp" />
+    <ClCompile Include="RoomListLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -86,7 +92,6 @@
     <ClInclude Include="..\Classes\ServerMessage.pb.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="ClassicTetrisLayer.h" />
     <ClInclude Include="DropBlock.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -100,6 +105,13 @@
     <ClInclude Include="GameStateFontEffect.h" />
     <ClInclude Include="BasicTetrisLayer.h" />
     <ClInclude Include="RemoteTetrisLayer.h" />
+    <ClInclude Include="OwnerTetrisLayer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginScene.h" />
+    <ClInclude Include="LoginInputLayer.h" />
+    <ClInclude Include="TetrisScene.h" />
+    <ClInclude Include="RoomListLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">

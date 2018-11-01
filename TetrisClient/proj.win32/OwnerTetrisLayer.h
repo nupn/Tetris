@@ -3,10 +3,10 @@
 #include "../proj.win32/GameBoard.h"
 #include "../proj.win32/BlockProductor.h"
 #include "../proj.win32/GameStateFontEffect.h"
-
+#include "../proj.win32/BasicTetrisLayer.h"
 #include "NextBlockView.h"
 
-class CClassicTetrisLayer  : public cocos2d::Layer
+class COwnerTetrisLayer  : public cocos2d::Layer
 {
 public:
 	//일자 넘기기
@@ -29,9 +29,9 @@ public:
 	};
 
 public:
-	CREATE_FUNC(CClassicTetrisLayer);
-	CClassicTetrisLayer();
-	~CClassicTetrisLayer();
+	CREATE_FUNC(COwnerTetrisLayer);
+	COwnerTetrisLayer();
+	~COwnerTetrisLayer();
 
 	virtual bool init() override;
 
