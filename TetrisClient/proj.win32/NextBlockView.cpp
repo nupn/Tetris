@@ -13,7 +13,7 @@ CNextBlockView::~CNextBlockView()
 
 bool CNextBlockView::init()
 {
-	m_pBatchContainer = CCellBatchSprite<kRow, kCol>::create2("Tetris/source.png");
+	m_pBatchContainer = CCellBatchSprite<kRow, kCol>::create2("Tetris/source.png", 23);
 	addChild(m_pBatchContainer);
 
 	return Sprite::init();

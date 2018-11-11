@@ -16,9 +16,10 @@ class CRoomListLayer : public Layer
 public:
 	enum
 	{
-		kCol = 5,
+		kCol = 3,
 		kRow = 2,
 		kRoomCount = kRow * kCol,
+		kMaxCapacity = 36,
 	};
 
 public:
@@ -27,7 +28,7 @@ public:
 	virtual ~CRoomListLayer();
 
 	virtual bool init() override;
-	void menuSelectCallback(Ref* pSender);
+	void _roomSelectCallback(Ref* pSender);
 
 	void NextPage();
 	void PrevPage();
@@ -35,12 +36,11 @@ public:
 private:
 	void _clearSellInfo();
 	void _initCell();
+	void _updateCell();
 	void _setSetInfo(int idx, RoomInfo& info);
 
 private:
 	vector<RoomInfo> _vecRoomInfos;
-	bool _bShowPrev = false;
-	bool _bShowLast= false;
-
+	int _nPage = 0;
 };
 

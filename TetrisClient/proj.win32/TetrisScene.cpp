@@ -85,13 +85,25 @@ bool CTetrisScene::init()
 	//pInputText->setPosition(100, 100);
 	//this->addChild(pInputText);
 	//pInputText->_trackNode = pTextField;
+	for (int i = 0; i < kRemoteSlotCount; ++i)
+	{
+		m_pRemoteLayer[i] = CRemoteTetrisLayer::create();
+		m_pRemoteLayer[i]->setPosition(50 + (i % 3) * 140, 410 - floor(i/3) * 260);
+		addChild(m_pRemoteLayer[i]);
+
+	}
+
+	
 
 
 	COwnerTetrisLayer* pgameLayer = COwnerTetrisLayer::create();
 	pgameLayer->setPosition(600, 150);
+	pgameLayer->SetEventCallback(std::bind(&CTetrisScene::onGameEventCallback, this, std::placeholders::_1));
+	pgameLayer->SetEventCallback2(std::bind(&CTetrisScene::onGameEventCallback2, this, std::placeholders::_1));
 	addChild(pgameLayer);
-	m_pGameLayer = pgameLayer;
 	pgameLayer->UpdateCellTexture();
+
+	m_pGameLayer = pgameLayer;
 
 
 	return true;
@@ -120,4 +132,26 @@ void CTetrisScene::Handle(const ServerMessage::Chat& message)
 		m_pChatLayer->PushMessage(message.message());
 
 	});
+}
+
+void CTetrisScene::onGameEventCallback(CDropBlock dropBlock)
+{
+	for (int i = 0; i < kRemoteSlotCount; ++i)
+	{
+		if (m_pRemoteLayer[i] != nullptr)
+		{
+			m_pRemoteLayer[i]->OnBlinkBlock(dropBlock);
+		}
+	}
+}
+
+void CTetrisScene::onGameEventCallback2(CDropBlock::BlockType nType)
+{
+	for (int i = 0; i < kRemoteSlotCount; ++i)
+	{
+		if (m_pRemoteLayer[i] != nullptr)
+		{
+			m_pRemoteLayer[i]->OnCreateBlock(nType);
+		}
+	}
 }

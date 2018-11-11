@@ -5,6 +5,7 @@
 
 #include "../proj.win32/PacketHandler.h"
 #include "..\proj.win32\OwnerTetrisLayer.h"
+#include "..\proj.win32\RemoteTetrisLayer.h"
 #include "../proj.win32/ChatLayer.h"
 
 
@@ -15,6 +16,12 @@ using namespace std;
 class CTetrisScene : public cocos2d::Scene, public PacketHandler
 {
 public:
+	enum
+	{
+		kRemoteSlotCount = 5
+	};
+
+public:
 	CREATE_FUNC(CTetrisScene);
 	virtual ~CTetrisScene();
 	static cocos2d::Scene* createScene();
@@ -23,9 +30,13 @@ public:
 
 	// a selector callback
 	void menuCloseCallback(cocos2d::Ref* pSender);
+	void onGameEventCallback(CDropBlock nEventIdx);
+	void onGameEventCallback2(CDropBlock::BlockType nIdx);
+
 	virtual void Handle(const ServerMessage::Chat& message) override;
 
 private:
+	CRemoteTetrisLayer* m_pRemoteLayer[kRemoteSlotCount] = { nullptr ,};
 	COwnerTetrisLayer* m_pGameLayer = nullptr;
 	CChatLayer* m_pChatLayer = nullptr;
 };

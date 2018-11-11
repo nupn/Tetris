@@ -5,6 +5,7 @@
 #include "../proj.win32/GameStateFontEffect.h"
 #include "../proj.win32/BasicTetrisLayer.h"
 #include "NextBlockView.h"
+#include <functional>
 
 class COwnerTetrisLayer  : public cocos2d::Layer
 {
@@ -35,18 +36,16 @@ public:
 
 	virtual bool init() override;
 
-	void UpdateDropBlock();
 	void UpdateCellTexture();
 	void RotateBlockLeft();
 	void RotateBlockRight();
 	void MoveBlockLeft();
 	void MoveBlockRight();
-	CGameBoard::DownBlockResult MoveBlockDown();
+	bool MoveBlockDown(int nDepth);
 	
 	void OnUpdate(float dt);
 
 	void OnUpdateBlockDown(float dt);
-	void DropBlock();
 	bool IsDropBlockDeadLine();
 	void ResetAllTimer();
 
@@ -57,7 +56,13 @@ public:
 
 	void OnEffectEnd(int nEndState);
 
+	//юс╫ц
+	void SetEventCallback(std::function<void(CDropBlock)> callback);
+	void SetEventCallback2(std::function<void(CDropBlock::BlockType)> callback);
+
+
 private:
+	void __UpdateNextBlock();
 	void __UpdateDropBlock();
 
 private:
@@ -65,6 +70,9 @@ private:
 	CBlockProductor m_BlockProductor;
 	CNextBlockView* m_nextBlockView;
 	CNextBlockView* m_nextBlockView2;
+	
+	std::function<void(CDropBlock)> _eventCallBack = nullptr;
+	std::function<void(CDropBlock::BlockType)> _eventCallBack2 = nullptr;
 
 
 	int m_nUpdateCnt = 0;

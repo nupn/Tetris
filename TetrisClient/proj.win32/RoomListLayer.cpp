@@ -1,5 +1,5 @@
 #include "RoomListLayer.h"
-
+#include "TetrisScene.h"
 
 
 CRoomListLayer::CRoomListLayer()
@@ -22,30 +22,42 @@ bool CRoomListLayer::init()
 		sprintf(roomName, "RoomName %d", i);
 		_vecRoomInfos[i].strRoomName = roomName;
 	}
-
+	_nPage = 0;
 	_initCell();
 	_clearSellInfo();
-	for (int i = 2; i < 7; ++i)
-	{
-		_setSetInfo(i, _vecRoomInfos[i]);
-	}
+	_updateCell();
 
 	return Layer::init();
 }
 
-void CRoomListLayer::menuSelectCallback(Ref* pSender)
-{
-}
 
 void CRoomListLayer::NextPage()
 {
+	if ((_nPage + 1) * kRoomCount >= kMaxCapacity)
+	{
+		return;
+	}
 
+	const int nMaxData = _vecRoomInfos.size();
+	if ((_nPage+1) * kRoomCount >= nMaxData)
+	{
+		return;
+	}
+
+	++_nPage;
+	_updateCell();
 }
 
 
 void CRoomListLayer::PrevPage()
 {
+	if (_nPage < 1)
+	{
+		return;
+	}
 
+	--_nPage;
+	_updateCell();
 }
 
 
@@ -96,7 +108,7 @@ void CRoomListLayer::_initCell()
 		label->setTag(2);
 		spriteBack->addChild(label);
 
-		auto meunItem = MenuItemSprite::create(spriteFront, spriteBack, CC_CALLBACK_1(CRoomListLayer::menuSelectCallback, this));
+		auto meunItem = MenuItemSprite::create(spriteFront, spriteBack, CC_CALLBACK_1(CRoomListLayer::_roomSelectCallback, this));
 		meunItem->setPosition(cellPos);
 		meunItem->setAnchorPoint(Vec2::ZERO);
 		meunItem->setTag(i);
@@ -161,6 +173,44 @@ void CRoomListLayer::_setSetInfo(int idx, RoomInfo& info)
 		if (label != nullptr)
 		{
 			label->setString(info.strRoomName);
+		}
+	}
+}
+
+void CRoomListLayer::_updateCell()
+{
+	_clearSellInfo();
+
+	int nMinBound = _nPage * kRoomCount;
+	const int nMaxData = _vecRoomInfos.size();
+
+	for (int i = 0; i < kRoomCount; ++i)
+	{
+		const int dataIdx = nMinBound + i;
+		if (dataIdx >= 0 && dataIdx < nMaxData)
+		{
+			_setSetInfo(i, _vecRoomInfos[dataIdx]);
+		}
+	}
+}
+
+
+void CRoomListLayer::_roomSelectCallback(Ref* pSender)
+{
+	auto menuItem = static_cast<MenuItemSprite*>(pSender);
+	if (menuItem != nullptr)
+	{
+		int nTag = menuItem->getTag();
+		int nDataIdx = _nPage * kRoomCount + nTag;
+		if (nDataIdx >= 0 && nDataIdx <= _vecRoomInfos.size())
+		{
+			//_vecRoomInfos[i];
+			auto director = Director::getInstance();
+			auto scene = CTetrisScene::createScene();
+			if (director != nullptr && scene != nullptr)
+			{
+				director->replaceScene(scene);
+			}
 		}
 	}
 }

@@ -14,9 +14,9 @@ CGameBoard::~CGameBoard()
 }
 
 
-bool CGameBoard::init()
+bool CGameBoard::init(const char* filename, const int nCellSize)
 {
-	m_pBatchCellContainer = CCellBatchSprite<kRow, kCol>::create2("Tetris/source.png");
+	m_pBatchCellContainer = CCellBatchSprite<kRow, kCol>::create2(filename, nCellSize);
 	addChild(m_pBatchCellContainer);
 
 	return Sprite::init();
@@ -126,19 +126,25 @@ void CGameBoard::UpdateDisplay()
 	}
 
 	//쉐도우 블럭 그리기
-	if (!m_bLineClearEffect)
+	if (m_bShowShadowBlock)
 	{
-		CDropBlock dropBlock = __GetDropBlock();
-
-		nType = dropBlock.GetBlockType();
-		nState = dropBlock.GetBlockState();
-		nPos = dropBlock.GetPos();
-		for (auto blockInfo : GetBlockShapes(nType, nState))
+		if (!m_bLineClearEffect)
 		{
-			int cellCol = nPos.x + blockInfo.x;
-			int cellRow = nPos.y - blockInfo.y;
-			m_pBatchCellContainer->UpdateCell(cellRow, cellCol, nType);
-			m_pBatchCellContainer->UpdateCellEffect(cellRow, cellCol, kBlockEffectAlpha);
+			CDropBlock dropBlock;
+
+			if (_MoveBlockDown(-1, dropBlock) > 0)
+			{
+				nType = dropBlock.GetBlockType();
+				nState = dropBlock.GetBlockState();
+				nPos = dropBlock.GetPos();
+				for (auto blockInfo : GetBlockShapes(nType, nState))
+				{
+					int cellCol = nPos.x + blockInfo.x;
+					int cellRow = nPos.y - blockInfo.y;
+					m_pBatchCellContainer->UpdateCell(cellRow, cellCol, nType);
+					m_pBatchCellContainer->UpdateCellEffect(cellRow, cellCol, kBlockEffectAlpha);
+				}
+			}
 		}
 	}
 
@@ -220,50 +226,35 @@ int CGameBoard::IsCollisionFloor(CDropBlock* targetBlock)
 
 }
 
-void CGameBoard::DropBlock()
+bool CGameBoard::DropBlock(int nDepth, CDropBlock& outRetBlock)
 {
 	//이미충돌주이라면 리턴
-	m_DropBlock = __GetDropBlock();
-	m_DropBlock.DrawCell(&m_cellBoard);
-
-
-	m_bNewBlickEffect = true;
-	m_newBlockInfo = m_DropBlock;
-
+	bool bDropped = false;
+	int nMove = _MoveBlockDown(nDepth, m_DropBlock);
+	if (nMove < nDepth || nDepth < 0)
+	{
+		m_DropBlock.DrawCell(&m_cellBoard);
+		m_bNewBlickEffect = true;
+		m_newBlockInfo = m_DropBlock;
+		bDropped = true;
+	}
+	
+	outRetBlock = m_DropBlock;
+	return bDropped;
 }
 
-CDropBlock CGameBoard::__GetDropBlock()
+int CGameBoard::_MoveBlockDown(int nDepth, CDropBlock& outRetBlock)
 {
 	CDropBlock dropBlock(m_DropBlock);
 	Vec2 blockPos = dropBlock.GetPos();
-
-	int nHeight = blockPos.y;
-	for (int i = 0; i < nHeight; ++i)
+	int nDepthMax = nDepth;
+	if (nDepthMax < 0)
 	{
-		blockPos.y -= 1;
-		dropBlock.SetPos(blockPos);
-		if (dropBlock.IsCollisionToCell(m_cellBoard))
-		{
-			blockPos.y += 1;
-			dropBlock.SetPos(blockPos);
-			break;
-		}
-		if (dropBlock.IsCollisionToFloor())
-		{
-			blockPos.y += 1;
-			dropBlock.SetPos(blockPos);
-			break;
-		}
+		nDepthMax = blockPos.y;
 	}
 
-	return dropBlock;
-}
-
-CGameBoard::DownBlockResult CGameBoard::MoveBlockDown()
-{
-	CDropBlock dropBlock(m_DropBlock);
-	Vec2 blockPos = dropBlock.GetPos();
-	for (int i = 0; i < m_nBlockMoveDownRange; ++i)
+	int nMoveCount = 0;
+	for (int i = 0; i < nDepthMax; ++i)
 	{
 		blockPos.y -= 1;
 		dropBlock.SetPos(blockPos);
@@ -271,25 +262,18 @@ CGameBoard::DownBlockResult CGameBoard::MoveBlockDown()
 		{
 			blockPos.y += 1;
 			dropBlock.SetPos(blockPos);
-
-			m_DropBlock = dropBlock;
-
-			m_DropBlock.DrawCell(&m_cellBoard);
-			
-			//m_bNewBlickEffect = true;
-			//m_newBlockInfo = m_DropBlock;
-
-			return CGameBoard::DownBlockResult::Dropped;
+			break;
 		}
+		
+		++nMoveCount;
 	}
 
-	m_DropBlock = dropBlock;
-	return CGameBoard::DownBlockResult::Floating;
+	outRetBlock = dropBlock;
+	return nMoveCount;
 }
 
 void CGameBoard::CheckLineClear()
 {
-	int posY = 23 * 20;
 	int idx = 0, row = 0, col = 0;
 
 	m_backCellBoard = m_cellBoard;
@@ -344,7 +328,7 @@ void CGameBoard::CheckLineClear()
 		m_bLineClearEffect = false;
 	}
 
-	if (nLineClearCnt >= 0)
+	if (nLineClearCnt > 0)
 	{
 		m_bLineClear = true;
 	}
@@ -372,4 +356,25 @@ void CGameBoard::OnLineClearEffectEnd(float dt)
 {
 	CCDirector::sharedDirector()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CGameBoard::OnLineClearEffectEnd), this);
 	UpdateDisplay();
+}
+
+bool CGameBoard::BlinkBlock(CDropBlock pDropBlock)
+{
+	if (!pDropBlock.IsCollision(m_cellBoard))
+	{
+		pDropBlock.DrawCell(&m_cellBoard);
+		return true;
+	}
+
+	return false;
+}
+
+void CGameBoard::SetShadowBlockVisible(bool bVisible)
+{
+	m_bShowShadowBlock = bVisible;
+}
+
+CDropBlock::BlockType CGameBoard::GetDropBlockType()
+{
+	return m_DropBlock.GetBlockType();
 }

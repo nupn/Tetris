@@ -22,6 +22,8 @@ public:
 
 
 	// a selector callback
+	void onPrevClick(cocos2d::Ref* pSender);
+	void onNextClick(cocos2d::Ref* pSender);
 	void menuCloseCallback(cocos2d::Ref* pSender);
 	virtual void Handle(const ServerMessage::Chat& message) override;
 

@@ -53,13 +53,13 @@ bool CLobbyScene::init()
 	auto nextButton = MenuItemImage::create(
 		"ArrowRight01.png",
 		"ArrowRight02.png",
-		CC_CALLBACK_1(CLobbyScene::menuCloseCallback, this));
+		CC_CALLBACK_1(CLobbyScene::onNextClick, this));
 	nextButton->setPosition(Vec2::Vec2(origin.x + visibleSize.width/2  - nextButton->getContentSize().width / 2 + 30,  300));
 
 	auto prevButton = MenuItemImage::create(
 		"ArrowLeft01.png",
 		"ArrowLeft02.png",
-		CC_CALLBACK_1(CLobbyScene::menuCloseCallback, this));
+		CC_CALLBACK_1(CLobbyScene::onPrevClick, this));
 	prevButton->setPosition(Vec2::Vec2(origin.x + visibleSize.width / 2 - prevButton->getContentSize().width / 2 - 30, 300));
 
 
@@ -94,7 +94,7 @@ bool CLobbyScene::init()
 
 
 	CRoomListLayer* pRoomList = CRoomListLayer::create();
-	pRoomList->setPosition(-290, 350);
+	pRoomList->setPosition(30, 350);
 	pRoomList->setAnchorPoint(Vec2::ZERO);
 	addChild(pRoomList);
 
@@ -131,4 +131,21 @@ void CLobbyScene::Handle(const ServerMessage::Chat& message)
 		m_pChatLayer->PushMessage(message.message());
 
 	});
+}
+
+
+void CLobbyScene::onPrevClick(cocos2d::Ref* pSender)
+{
+	if (m_pRoomListLayer)
+	{
+		m_pRoomListLayer->PrevPage();
+	}
+}
+
+void CLobbyScene::onNextClick(cocos2d::Ref* pSender)
+{
+	if (m_pRoomListLayer)
+	{
+		m_pRoomListLayer->NextPage();
+	}
 }

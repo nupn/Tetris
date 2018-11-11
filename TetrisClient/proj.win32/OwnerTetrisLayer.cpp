@@ -15,7 +15,7 @@ COwnerTetrisLayer::~COwnerTetrisLayer()
 //http://cocos2dx.tistory.com/entry/CCSpriteBatchNode-%EC%82%AC%EC%9A%A9%EB%B2%95-cocos2dx
 bool COwnerTetrisLayer::init()
 {
-	m_pGameBoard = CGameBoard::create();
+	m_pGameBoard = CGameBoard::create("Tetris/source.png", 23);
 	addChild(dynamic_cast<Sprite*>(m_pGameBoard));
 	
 	m_nextBlockView = CNextBlockView::create();
@@ -35,8 +35,8 @@ bool COwnerTetrisLayer::init()
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(keyListener, this);
 
 
-
 	__UpdateDropBlock();
+	__UpdateNextBlock();
 
 
 	CCDirector::sharedDirector()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(COwnerTetrisLayer::OnUpdate), this, 0, false);
@@ -68,11 +68,6 @@ void COwnerTetrisLayer::UpdateCellTexture()
 	m_pGameBoard->UpdateDisplay();
 }
 
-void COwnerTetrisLayer::UpdateDropBlock()
-{
-	__UpdateDropBlock();
-	UpdateCellTexture();
-}
 
 void COwnerTetrisLayer::RotateBlockLeft()
 {
@@ -98,30 +93,46 @@ void COwnerTetrisLayer::MoveBlockRight()
 	UpdateCellTexture();
 }
 
-void COwnerTetrisLayer::DropBlock()
+bool COwnerTetrisLayer::MoveBlockDown(int nDepth)
 {
-	m_pGameBoard->DropBlock();
-	__UpdateDropBlock();
-	m_pGameBoard->CheckLineClear();
-	UpdateCellTexture();
-}
-
-CGameBoard::DownBlockResult COwnerTetrisLayer::MoveBlockDown()
-{
-	CGameBoard::DownBlockResult ret = m_pGameBoard->MoveBlockDown();
-	if (ret == CGameBoard::DownBlockResult::Dropped)
+	//
+	CDropBlock dropblock;
+	bool bDropeed = m_pGameBoard->DropBlock(nDepth, dropblock);
+	if (bDropeed)
 	{
 		m_pGameBoard->CheckLineClear();
 		__UpdateDropBlock();
+		__UpdateNextBlock();
+		if (_eventCallBack != nullptr)
+		{
+			_eventCallBack(dropblock);
+		}
 	}
 	UpdateCellTexture();
 
-	return ret;
+	return bDropeed;
 }
 
 bool COwnerTetrisLayer::IsDropBlockDeadLine()
 {
 	return m_pGameBoard->IsDeadLine();
+}
+
+void COwnerTetrisLayer::__UpdateNextBlock()
+{
+	m_BlockProductor.SlideWindow();
+
+	CDropBlock::BlockType nType = m_BlockProductor.GetBlock(0);
+	if (m_nextBlockView)
+	{
+		m_nextBlockView->SetBlock(nType);
+	}
+	nType = m_BlockProductor.GetBlock(1);
+	if (m_nextBlockView2)
+	{
+		m_nextBlockView2->SetBlock(nType);
+	}
+
 }
 
 void COwnerTetrisLayer::__UpdateDropBlock()
@@ -137,8 +148,9 @@ void COwnerTetrisLayer::__UpdateDropBlock()
 	m_pGameBoard->ResetDropBlock(nType);
 	return;
 	*/
+
+	//여기 GameBoard 정리하면서 정리
 	CDropBlock::BlockType nType = m_BlockProductor.GetBlock(0);
-	m_BlockProductor.SlideWindow();
 	if (!m_pGameBoard->ResetDropBlock(nType))
 	{
 		m_pGameResultEffect->SetState(CGameStateFontEffect::kDead);
@@ -148,19 +160,11 @@ void COwnerTetrisLayer::__UpdateDropBlock()
 		return;
 	}
 
-	nType = m_BlockProductor.GetBlock(0);
-	if (m_nextBlockView)
+	if (_eventCallBack2 != nullptr)
 	{
-		m_nextBlockView->SetBlock(nType);
-	}
-	nType = m_BlockProductor.GetBlock(1);
-	if (m_nextBlockView2)
-	{
-		m_nextBlockView2->SetBlock(nType);
+		_eventCallBack2(nType);
 	}
 
-
-	nType = m_BlockProductor.GetBlock(3);
 
 	CCDirector::getInstance()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(COwnerTetrisLayer::OnUpdateBlockDown), this);
 	CCDirector::getInstance()->getScheduler()->schedule(CC_SCHEDULE_SELECTOR(COwnerTetrisLayer::OnUpdateBlockDown), this, 2, false);
@@ -173,14 +177,7 @@ void COwnerTetrisLayer::OnUpdateBlockDown(float dt)
 		return;
 	}
 
-	CGameBoard::DownBlockResult ret = m_pGameBoard->MoveBlockDown();
-	if (ret == CGameBoard::DownBlockResult::Dropped)
-	{
-		m_pGameBoard->CheckLineClear();
-		__UpdateDropBlock();
-	}
-	//변화가 없다면 굳이? 전체를
-	UpdateCellTexture();
+	MoveBlockDown(1);
 }
 
 
@@ -239,9 +236,8 @@ void COwnerTetrisLayer::OnUpdate(float dt)
 					return;
 				}
 
-				CGameBoard::DownBlockResult ret = MoveBlockDown();
 				m_nUpdateCnt -= nMovePerFrame;
-				if (ret == CGameBoard::DownBlockResult::Dropped)
+				if (MoveBlockDown(1))
 				{
 					ResetAllTimer();
 				}
@@ -293,7 +289,11 @@ void COwnerTetrisLayer::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* even
 		{
 			if (m_bMovingDown == false)
 			{
-				MoveBlockDown();
+				if (MoveBlockDown(1))
+				{
+					return;
+				}
+
 				m_nUpdateCnt = 0;
 				m_nUpdateCntTotal = 0;
 				m_nUpdatePerTime = 20;
@@ -325,7 +325,7 @@ void COwnerTetrisLayer::onKeyPressed(EventKeyboard::KeyCode keyCode, Event* even
 		}
 		else if (keyCode == EventKeyboard::KeyCode::KEY_SPACE)
 		{
-			DropBlock();
+			MoveBlockDown(-1);
 		}
 	}
 }
@@ -356,7 +356,19 @@ void COwnerTetrisLayer::OnEffectEnd(int nEndState)
 	}
 }
 
-void OnEffectEnd(int nEffectType)
+void COwnerTetrisLayer::SetEventCallback(std::function<void(CDropBlock)> callback)
 {
+	_eventCallBack = callback;
+}
+
+void COwnerTetrisLayer::SetEventCallback2(std::function<void(CDropBlock::BlockType)> callback)
+{
+	_eventCallBack2 = callback;
+
+	if (_eventCallBack2 != nullptr)
+	{
+		auto blockType = m_pGameBoard->GetDropBlockType();
+		_eventCallBack2(blockType);
+	}
 
 }
