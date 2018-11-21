@@ -29,8 +29,8 @@ public:
 
 	~ClientSocket();
 	
-	void PutPacket(ServerMessage::MessageType packetType, ::google::protobuf::Message* message);
-	void SendPacket(ServerMessage::MessageType packetType, ::google::protobuf::Message* message);
+	void PutPacket(int packetType, ::google::protobuf::Message* message);
+	void SendPacket(int packetType, ::google::protobuf::Message* message);
 	void FlushPacket();
 	void OnSendComplete();
 	

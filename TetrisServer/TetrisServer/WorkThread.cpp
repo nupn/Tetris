@@ -26,7 +26,7 @@ void WorkThread::Run(HANDLE hComPort)
 {
 	const ClientSocketPool& socketPoolref = boost::serialization::singleton<ClientSocketPool>::get_const_instance();
 	//LobbySession& packetHandler = boost::serialization::singleton<LobbySession>::get_mutable_instance();
-	LobbySession* pPacketHandler = new LobbySession;
+	CLobbySession* pPacketHandler = new CLobbySession;
 
 
 	while (1)

@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\workspace\protobuf-3.5.1\src;C:\workspace\Tetris\Include\header;$(IncludePath)</IncludePath>
+    <IncludePath>C:\workspace\protobuf-3.5.1\src;C:\workspace\Tetris\Include\header;..\..\protocol;$(IncludePath)</IncludePath>
     <LibraryPath>C:\workspace\protobuf-3.5.1\VC\Debug;C:\workspace\Tetris\Include\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\protocol\ServerMessage.pb.cc" />
     <ClCompile Include="ClientSocket.cpp" />
     <ClCompile Include="ClientSocketPool.cpp" />
     <ClCompile Include="Constants.cpp" />
@@ -154,21 +155,24 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PacketBase.cpp" />
     <ClCompile Include="Protocol.cpp" />
-    <ClCompile Include="protocol\ServerMessage.pb.cc" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Structs.cpp" />
+    <ClCompile Include="User.cpp" />
+    <ClCompile Include="UserPool.cpp" />
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\protocol\ServerMessage.pb.h" />
     <ClInclude Include="ClientSocket.h" />
     <ClInclude Include="ClientSocketPool.h" />
     <ClInclude Include="LobbySession.h" />
     <ClInclude Include="PacketBase.h" />
     <ClInclude Include="Protocol.h" />
-    <ClInclude Include="protocol\ServerMessage.pb.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Structs.h" />
+    <ClInclude Include="User.h" />
+    <ClInclude Include="UserPool.h" />
     <ClInclude Include="WorkThread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

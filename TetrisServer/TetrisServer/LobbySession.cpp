@@ -2,23 +2,40 @@
 #include "LobbySession.h"
 
 #include "ClientSocketPool.h"
+#include "UserPool.h"
 
-
-LobbySession::LobbySession()
+CLobbySession::CLobbySession()
 {
 }
 
 
-LobbySession::~LobbySession()
+CLobbySession::~CLobbySession()
 {
 }
 
 
-void LobbySession::Handle(const ServerMessage::Login& message, ClientSocket* pSocket)
+void CLobbySession::Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket)
 {
+	if (codedStream == nullptr)
+	{
+		return;
+	}
 
+	switch (nMessageType)
+	{
+	case ServerMessage::MessageType::kReqLogin:
+	{
+		ServerMessage::MessageBase::ReqLogin message;
+		if (false == message.ParseFromCodedStream(codedStream))
+			break;
+		
+		__OnReqLogin(message, pSocket);
+	}
+	break;
+	}
 }
 
+/*
 void LobbySession::Handle(const ServerMessage::Chat& message, ClientSocket* pSocket)
 {
 
@@ -39,4 +56,25 @@ void LobbySession::Handle(const ServerMessage::Chat& message, ClientSocket* pSoc
 void LobbySession::Handle(const ServerMessage::Move& message, ClientSocket* pSocket)
 {
 
+}
+*/
+
+
+void CLobbySession::__OnReqLogin(ServerMessage::MessageBase::ReqLogin& onPacket, ClientSocket* pSocket)
+{
+	const string& userName = onPacket.name();
+	CUserPool& userPoolref = boost::serialization::singleton<CUserPool>::get_mutable_instance();
+	CUser* pNewUser = nullptr;
+	if (userPoolref.CreateNewUser(userName, pNewUser) && pNewUser != nullptr)
+	{
+		if (pNewUser->SetSocket(pSocket))
+		{
+			ServerMessage::Chat sendMessage;
+			sendMessage.set_name("aaa1");
+			sendMessage.set_dst_id(1);
+			sendMessage.set_message(msg);
+
+			pSocket->SendPacket(ServerMessage::CHAT, &sendMessage);
+		}
+	}
 }

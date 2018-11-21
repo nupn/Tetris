@@ -1,10 +1,6 @@
-package ServerMessage;
+syntax = "proto3";
 
-enum MessageType {
-    LOGIN = 0;
-    CHAT = 1;
-    MOVE = 2;
-}
+package ServerMessage;
 
 message Login {
     required int32 id = 1;

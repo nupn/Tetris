@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package ServerMessage;
+
+enum MessageType {
+	kReqLogin = 0;
+	kResLogin = 1;
+}
+
+
+message MessageBase {
+
+	message ReqLogin {
+		int32 id = 1;
+		string name = 2;
+	}
+	
+	message ResLogin {
+		int32 res = 1;
+	}
+	
+	
+}

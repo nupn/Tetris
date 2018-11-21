@@ -48,8 +48,14 @@
     <ClCompile Include="LobbySession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="protocol\ServerMessage.pb.cc">
+    <ClCompile Include="..\..\protocol\ServerMessage.pb.cc">
       <Filter>Source Files\Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="UserPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -80,8 +86,14 @@
     <ClInclude Include="LobbySession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="protocol\ServerMessage.pb.h">
+    <ClInclude Include="..\..\protocol\ServerMessage.pb.h">
       <Filter>Source Files\Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="UserPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="User.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

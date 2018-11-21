@@ -24,7 +24,7 @@ ClientSocket::~ClientSocket()
 {
 }
 
-void ClientSocket::PutPacket(ServerMessage::MessageType packetType, ::protobuf::Message* message)
+void ClientSocket::PutPacket(int packetType, ::protobuf::Message* message)
 {
 	if (message == nullptr)
 	{
@@ -52,7 +52,7 @@ void ClientSocket::PutPacket(ServerMessage::MessageType packetType, ::protobuf::
 }
 
 
-void ClientSocket::SendPacket(ServerMessage::MessageType packetType, ::google::protobuf::Message* message)
+void ClientSocket::SendPacket(int packetType, ::google::protobuf::Message* message)
 {
 	PutPacket(packetType, message);
 	__SendPacket();
@@ -177,17 +177,20 @@ void ClientSocket::GetPacket(PacketHandler* pPacketHandle)
 		input_coded_stream.Skip(messageHeader.size);
 		nRecvBufferUsed += MessageHeaderSize + messageHeader.size;
 
+
+		pPacketHandle->Handle(messageHeader.type, &payload_input_stream);
+		/*
 		switch (messageHeader.type)
 		{
-			case ServerMessage::LOGIN:
+		case ServerMessage::MessageType::kReqLogin:
 			{
-				ServerMessage::Login message;
+				ServerMessage::MessageBase::ReqLogin message;
 				if (false == message.ParseFromCodedStream(&payload_input_stream))
 					break;
-				pPacketHandle->Handle(message, this);
+				pPacketHandle->Handle(&message, this);
 			}
 			break;
-
+			
 			case ServerMessage::CHAT:
 			{
 				ServerMessage::Chat message;
@@ -205,6 +208,7 @@ void ClientSocket::GetPacket(PacketHandler* pPacketHandle)
 			}
 			break;
 		}
+			*/
 
 	}
 }

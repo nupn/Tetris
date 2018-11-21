@@ -1,16 +1,19 @@
 #pragma once
 #include "Protocol.h"
 
+using namespace google;
 class ClientSocket;
 
-class LobbySession : public PacketHandler
+class CLobbySession : public PacketHandler
 {
 public:
-	LobbySession();
-	~LobbySession();
+	CLobbySession();
+	virtual ~CLobbySession();
 
-	virtual void Handle(const ServerMessage::Login& message, ClientSocket* pSocket);
-	virtual void Handle(const ServerMessage::Chat& message, ClientSocket* pSocket);
-	virtual void Handle(const ServerMessage::Move& message, ClientSocket* pSocket);
+	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket);
+
+
+private:
+	void __OnReqLogin(ServerMessage::MessageBase::ReqLogin& onPacket, ClientSocket* pSocket);
 };
 
