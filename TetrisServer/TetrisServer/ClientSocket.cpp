@@ -178,7 +178,7 @@ void ClientSocket::GetPacket(PacketHandler* pPacketHandle)
 		nRecvBufferUsed += MessageHeaderSize + messageHeader.size;
 
 
-		pPacketHandle->Handle(messageHeader.type, &payload_input_stream);
+		pPacketHandle->Handle(messageHeader.type, &payload_input_stream, this);
 		/*
 		switch (messageHeader.type)
 		{

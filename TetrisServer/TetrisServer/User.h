@@ -1,6 +1,5 @@
-#include "ClientSocket.h"
-
 #pragma once
+class ClientSocket;
 class CUser
 {
 public:

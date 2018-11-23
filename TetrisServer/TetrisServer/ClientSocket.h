@@ -1,11 +1,11 @@
 #pragma once
-#include "NPCMemoryPool/NPCMemoryPool.h"
+#include "MemoryPool.h"
 #include "Structs.h"
 #include "PacketBase.h"
 #include "Protocol.h"
 #include <functional>
 
-using namespace NPCL;
+using namespace NPL;
 
 
 struct OVERLAPPEDEX

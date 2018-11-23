@@ -67,6 +67,7 @@ void CLobbySession::__OnReqLogin(ServerMessage::MessageBase::ReqLogin& onPacket,
 	CUser* pNewUser = nullptr;
 	if (userPoolref.CreateNewUser(userName, pNewUser) && pNewUser != nullptr)
 	{
+		/*
 		if (pNewUser->SetSocket(pSocket))
 		{
 			ServerMessage::Chat sendMessage;
@@ -76,5 +77,6 @@ void CLobbySession::__OnReqLogin(ServerMessage::MessageBase::ReqLogin& onPacket,
 
 			pSocket->SendPacket(ServerMessage::CHAT, &sendMessage);
 		}
+		*/
 	}
 }
