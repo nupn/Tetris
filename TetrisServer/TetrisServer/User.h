@@ -8,6 +8,6 @@ public:
 
 	bool SetSocket(ClientSocket* pSocket);
 
-	ClientSocket* pSocket;
+	ClientSocket* _pSocket;
 };
 

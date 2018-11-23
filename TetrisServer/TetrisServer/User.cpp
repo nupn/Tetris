@@ -11,3 +11,14 @@ CUser::CUser()
 CUser::~CUser()
 {
 }
+
+bool CUser::SetSocket(ClientSocket* pSocket)
+{
+	if (_pSocket == nullptr)
+	{
+		_pSocket = pSocket;
+		return true;
+	}
+
+	return false;
+}

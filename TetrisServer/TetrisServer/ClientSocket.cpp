@@ -150,9 +150,9 @@ void ClientSocket::OnReceiveComplete(int nReceiveBype)
 }
 
 //http://egloos.zum.com/javawork/v/2726467
-void ClientSocket::GetPacket(PacketHandler* pPacketHandle)
+void ClientSocket::ReadAndConsumeBuffer()
 {
-	if (pPacketHandle == nullptr)
+	if (m_pPacketHandler == nullptr)
 	{
 		return;
 	}
@@ -178,7 +178,7 @@ void ClientSocket::GetPacket(PacketHandler* pPacketHandle)
 		nRecvBufferUsed += MessageHeaderSize + messageHeader.size;
 
 
-		pPacketHandle->Handle(messageHeader.type, &payload_input_stream, this);
+		m_pPacketHandler->Handle(messageHeader.type, &payload_input_stream, this);
 		/*
 		switch (messageHeader.type)
 		{
@@ -211,4 +211,9 @@ void ClientSocket::GetPacket(PacketHandler* pPacketHandle)
 			*/
 
 	}
+}
+
+void ClientSocket::SetPacketHandler(PacketHandler* pPacketHandler)
+{
+	m_pPacketHandler = pPacketHandler;
 }

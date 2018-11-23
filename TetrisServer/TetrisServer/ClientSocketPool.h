@@ -1,15 +1,14 @@
 #pragma once
 #include "ClientSocket.h"
-#include <mutex>
-#include <boost/serialization/singleton.hpp>
+#include "Singletone.h"
 
-class ClientSocketPool : public boost::serialization::singleton<ClientSocketPool>
+using namespace NPL;
+
+class ClientSocketPool : public Singletone<ClientSocketPool>
 {
 public:
-	friend class boost::serialization::singleton<ClientSocketPool>;
-
 	ClientSocketPool();
-	~ClientSocketPool();
+	virtual ~ClientSocketPool();
 
 	ClientSocket* CreateSocket();
 	bool AddSocket(ClientSocket* pSocket);

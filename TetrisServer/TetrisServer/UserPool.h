@@ -1,17 +1,16 @@
 #pragma once
 #include "string"
 #include "User.h"
-#include "boost\serialization\singleton.hpp"
+#include "Singletone.h"
 
+using namespace NPL;
 using namespace std;
 
-class CUserPool : public boost::serialization::singleton<CUserPool>
+class CUserPool : public Singletone<CUserPool>
 {
 public:
-	friend class boost::serialization::singleton<CUserPool>;
-
 	CUserPool();
-	~CUserPool();
+	virtual ~CUserPool();
 
 	bool CreateNewUser(string strUserName, CUser* pOutUser);
 	void DeleteUser(string  strUserName, CUser* pOutUser);

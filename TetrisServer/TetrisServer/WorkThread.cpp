@@ -24,11 +24,8 @@ void WorkThread::Proc(HANDLE hComPort)
 
 void WorkThread::Run(HANDLE hComPort)
 {
-	const ClientSocketPool& socketPoolref = boost::serialization::singleton<ClientSocketPool>::get_const_instance();
-	//LobbySession& packetHandler = boost::serialization::singleton<LobbySession>::get_mutable_instance();
-	CLobbySession* pPacketHandler = new CLobbySession;
-
-
+	ClientSocketPool* pSocketPool = ClientSocketPool::GetInstnace();
+	
 	while (1)
 	{
 		DWORD bytesTrans;
@@ -43,14 +40,11 @@ void WorkThread::Run(HANDLE hComPort)
 			continue;
 		}
 
-		//ClientSocket* socket = socketPoolref.GetSocket(sock);
-
-		ClientSocket* socket = socketPoolref.GetSocket(iocpKey);
-
+		ClientSocket* socket = pSocketPool->GetSocket(iocpKey);
 		if (pOverlappedEx->nRwMode == ClientSocket::READ_SOCKET)
 		{
 			socket->OnReceiveComplete(bytesTrans);
-			socket->GetPacket(pPacketHandler);
+			socket->ReadAndConsumeBuffer();
 			socket->OnReceive();
 		}
 		else if (pOverlappedEx->nRwMode == ClientSocket::WRITE_SOCKET)

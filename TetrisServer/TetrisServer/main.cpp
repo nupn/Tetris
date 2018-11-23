@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include "ClientSocket.h"
 #include "ClientSocketPool.h"
+#include "SessionPool.h"
 
 unsigned int __stdcall EchoThreadMain(LPVOID CompletionPortIO);
 void ErrorHandling(char *message);
@@ -12,7 +13,7 @@ int main(int argc, char* argv[])
 {
 	SetConsoleTitle(L"TetrisServer");
 
-	ClientSocketPool& socketPoolref = boost::serialization::singleton<ClientSocketPool>::get_mutable_instance();
+	ClientSocketPool* pSocketPool = ClientSocketPool::GetInstnace();
 	
 	WSADATA wsaData;
 	HANDLE hComPort;
@@ -75,7 +76,7 @@ int main(int argc, char* argv[])
 			ErrorHandling("accept() error!");
 		}
 
-		ClientSocket* pSocket = socketPoolref.CreateSocket();
+		ClientSocket* pSocket = pSocketPool->CreateSocket();
 		pSocket->hClntSock = hClntSock;
 		memcpy(&(pSocket->clntAdr), &clntAdr, addrLen);
 		memset(&(pSocket->recvOoverlapped), 0, sizeof(OVERLAPPED));
@@ -85,6 +86,9 @@ int main(int argc, char* argv[])
 		pSocket->recvWsaBuf.len = BUF_SIZE;
 		pSocket->recvWsaBuf.buf = pSocket->recvbuffer;
 		pSocket->recvOoverlapped.nRwMode = ClientSocket::READ_SOCKET;
+
+		auto pSessionPool = CSessionPool::GetInstnace();
+		pSocket->SetPacketHandler(pSessionPool->GetLoginSession());
 		printf("New Connect\n");
 
 		WSARecv(pSocket->hClntSock, &(pSocket->recvWsaBuf), 1, &recvBytes, &flags, (OVERLAPPED*)(&pSocket->recvOoverlapped), NULL);

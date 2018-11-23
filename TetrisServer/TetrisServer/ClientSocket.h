@@ -1,9 +1,9 @@
 #pragma once
+#include <memory>
 #include "MemoryPool.h"
 #include "Structs.h"
 #include "PacketBase.h"
 #include "Protocol.h"
-#include <functional>
 
 using namespace NPL;
 
@@ -37,7 +37,8 @@ public:
 
 	void OnReceive();
 	void OnReceiveComplete(int nReceiveBype);
-	void GetPacket(PacketHandler* pPacketHandle);
+	void ReadAndConsumeBuffer();
+	void SetPacketHandler(PacketHandler* pPacketHandler);
 
 private:
 void __SendPacket();
@@ -64,9 +65,10 @@ public:
 
 
 	DWORD m_dwIOCPKey;
+	PacketHandler*	m_pPacketHandler;
+
 
 	MEMPOOL_OPERATOR(ClientSocket, 100);
-
 };
 
 
