@@ -38,9 +38,6 @@
     </ClCompile>
     <ClCompile Include="PacketHandler.cpp" />
     <ClCompile Include="Socket.cpp" />
-    <ClCompile Include="..\Classes\ServerMessage.pb.cc">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="DropBlock.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -89,9 +86,6 @@
     </ClInclude>
     <ClInclude Include="PacketHandler.h" />
     <ClInclude Include="Socket.h" />
-    <ClInclude Include="..\Classes\ServerMessage.pb.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="DropBlock.h">
       <Filter>src</Filter>
     </ClInclude>

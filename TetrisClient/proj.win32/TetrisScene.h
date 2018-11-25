@@ -33,7 +33,7 @@ public:
 	void onGameEventCallback(CDropBlock nEventIdx);
 	void onGameEventCallback2(CDropBlock::BlockType nIdx);
 
-	virtual void Handle(const ServerMessage::Chat& message) override;
+	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket) override;
 
 private:
 	CRemoteTetrisLayer* m_pRemoteLayer[kRemoteSlotCount] = { nullptr ,};

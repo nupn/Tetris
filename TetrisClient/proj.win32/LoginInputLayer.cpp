@@ -62,10 +62,21 @@ bool CLoginInputLayer::init()
 
 void CLoginInputLayer::onMenuSelectCallback(Ref* pSender)
 {
+	/*
+	ServerMessage::MessageType:: sendMessage;
+	sendMessage.set_dst_id(10);
+	sendMessage.set_name("aas");
+	sendMessage.set_message(pTextField->GetString());
+
+	CNetworkThread::GetMutable().SendPacket(ServerMessage::CHAT, &sendMessage);
+	*/
+
+	/*
 	auto director = Director::getInstance();
 	auto scene = CLobbyScene::createScene();
 	if (director != nullptr && scene != nullptr)
 	{
 		director->replaceScene(scene);
 	}
+	*/
 }

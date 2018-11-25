@@ -1,8 +1,7 @@
 #pragma once
-
 #include "cocos2d.h"
-#include "NPCppTool/KoreanIME.h"
-using namespace NPCL;
+#include "KoreanIME.h"
+using namespace NPL;
 
 USING_NS_CC;
 
@@ -204,5 +203,5 @@ private:
 
 private:
 	int m_nInputMax = 0;
-	NPCL::CKoreanIME m_koreanIME;
+	NPL::CKoreanIME m_koreanIME;
 };

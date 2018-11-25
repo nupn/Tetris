@@ -143,7 +143,7 @@ bool Socket::GetPacket(PacketHandler* pPacketHandle)
 		{
 			m_nRecvBuffUsed -= MessageHeaderSize + messageHeader.size;
 		}
-
+		/*
 		switch (messageHeader.type)
 		{
 			case ServerMessage::CHAT:
@@ -159,7 +159,7 @@ bool Socket::GetPacket(PacketHandler* pPacketHandle)
 			default :
 				return false;
 		}
-
+		*/
 	}
 	return true;
 }
