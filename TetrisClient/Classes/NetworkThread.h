@@ -2,17 +2,14 @@
 #include <thread>
 #include "../proj.win32/Socket.h"
 #include "../proj.win32/PacketHandler.h"
-
-#include <boost/serialization/singleton.hpp>
+#include "Singletone.h"
 
 
 //performFunctionInCocosThread example
 //http://codelala.net/cocos2d-x-2-05-multi-threading-2-mutex/
-class CNetworkThread : public boost::serialization::singleton<CNetworkThread>
+class CNetworkThread : public NPL::Singletone<CNetworkThread>
 {
 public:
-	friend class boost::serialization::singleton<CNetworkThread>;
-
 
 	CNetworkThread();
 	virtual ~CNetworkThread();
@@ -21,13 +18,9 @@ public:
 	void Work();
 	void Terminate();
 
+	void SetPacketHandler(PacketHandler* pHandler);
+
 	void SendPacket(ServerMessage::MessageType packetType, ::google::protobuf::Message* message);
-
-	static CNetworkThread& GetMutable() {
-
-		return boost::serialization::singleton<CNetworkThread>::get_mutable_instance();
-
-	}
 
 private:
 	std::string m_strIpAddress;

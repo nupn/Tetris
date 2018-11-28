@@ -18,5 +18,7 @@ public:
 	virtual ~CLoginScene();
 	virtual bool init();
 
+
+	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream) override;
 };
 

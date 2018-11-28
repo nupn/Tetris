@@ -119,7 +119,7 @@ void CLobbyScene::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void CLobbyScene::Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket)
+void CLobbyScene::Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream)
 {
 	if (!m_pChatLayer)
 	{

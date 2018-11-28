@@ -143,6 +143,9 @@ bool Socket::GetPacket(PacketHandler* pPacketHandle)
 		{
 			m_nRecvBuffUsed -= MessageHeaderSize + messageHeader.size;
 		}
+
+		pPacketHandle->Handle(messageHeader.type, &payload_input_stream);
+
 		/*
 		switch (messageHeader.type)
 		{

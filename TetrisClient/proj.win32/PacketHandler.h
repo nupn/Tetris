@@ -18,7 +18,7 @@ class PacketHandler
 public:
 	PacketHandler() = default;
 	virtual ~PacketHandler() = default;
-	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket)
+	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream)
 	{
 	}
 

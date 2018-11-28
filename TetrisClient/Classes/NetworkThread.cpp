@@ -170,3 +170,9 @@ void CNetworkThread::SendPacket(ServerMessage::MessageType packetType, ::google:
 {
 	m_pSocket.SendPacket(packetType, message);
 }
+
+
+void CNetworkThread::SetPacketHandler(PacketHandler* pHandler)
+{
+	m_pPackethandler = pHandler;
+}

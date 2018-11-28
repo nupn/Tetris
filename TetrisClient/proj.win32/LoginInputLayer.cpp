@@ -1,7 +1,9 @@
 #include "LoginInputLayer.h"
-#include "LobbyScene.h"
 #include "TextFieldKR.h"
+#include "NetworkThread.h"
 
+#include "..\..\protocol\ServerMessage.pb.h"
+using namespace google;
 
 CLoginInputLayer::CLoginInputLayer()
 {
@@ -62,14 +64,12 @@ bool CLoginInputLayer::init()
 
 void CLoginInputLayer::onMenuSelectCallback(Ref* pSender)
 {
-	/*
-	ServerMessage::MessageType:: sendMessage;
-	sendMessage.set_dst_id(10);
-	sendMessage.set_name("aas");
-	sendMessage.set_message(pTextField->GetString());
+	TextFieldKR* pInputText = (TextFieldKR*)getChildByTag(123);
+	ServerMessage::MessageBase::ReqLogin sendMessage;
+	sendMessage.set_id(0);
+	sendMessage.set_name(pInputText->GetString());
 
-	CNetworkThread::GetMutable().SendPacket(ServerMessage::CHAT, &sendMessage);
-	*/
+	CNetworkThread::GetInstance()->SendPacket(ServerMessage::MessageType::kReqLogin , &sendMessage);
 
 	/*
 	auto director = Director::getInstance();

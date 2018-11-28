@@ -5,6 +5,9 @@ package ServerMessage;
 enum MessageType {
 	kReqLogin = 0;
 	kResLogin = 1;
+	
+	kReqRoomList = 2;
+	kResRoomList = 3;
 }
 
 
@@ -17,6 +20,22 @@ message MessageBase {
 	
 	message ResLogin {
 		int32 res = 1;
+	}
+
+	message ReqRoomList {
+		int32 idx = 1;
+	}
+	
+	message ResRoomList {
+		int32 currentIdx = 1;
+		int32 roomInfoCount = 2;
+		
+		message RoomInfo
+		{
+			string name = 2;
+		}
+		
+		repeated RoomInfo rooms = 3;
 	}
 	
 	

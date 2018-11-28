@@ -58,6 +58,9 @@
     <ClCompile Include="LoginInputLayer.cpp" />
     <ClCompile Include="TetrisScene.cpp" />
     <ClCompile Include="RoomListLayer.cpp" />
+    <ClCompile Include="..\..\protocol\ServerMessage.pb.cc">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">

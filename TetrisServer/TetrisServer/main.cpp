@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 {
 	SetConsoleTitle(L"TetrisServer");
 
-	ClientSocketPool* pSocketPool = ClientSocketPool::GetInstnace();
+	ClientSocketPool* pSocketPool = ClientSocketPool::GetInstance();
 	
 	WSADATA wsaData;
 	HANDLE hComPort;
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 		pSocket->recvWsaBuf.buf = pSocket->recvbuffer;
 		pSocket->recvOoverlapped.nRwMode = ClientSocket::READ_SOCKET;
 
-		auto pSessionPool = CSessionPool::GetInstnace();
+		auto pSessionPool = CSessionPool::GetInstance();
 		pSocket->SetPacketHandler(pSessionPool->GetLoginSession());
 		printf("New Connect\n");
 

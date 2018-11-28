@@ -6,6 +6,7 @@
 
 CLobbySession::CLobbySession()
 {
+	m_rooms.resize(kMaxRoomCnt);
 }
 
 
@@ -23,13 +24,13 @@ void CLobbySession::Handle(int nMessageType, protobuf::io::CodedInputStream* cod
 
 	switch (nMessageType)
 	{
-	case ServerMessage::MessageType::kReqLogin:
+	case ServerMessage::MessageType::kReqRoomList:
 	{
-		ServerMessage::MessageBase::ReqLogin message;
+		ServerMessage::MessageBase::ReqRoomList message;
 		if (false == message.ParseFromCodedStream(codedStream))
 			break;
 		
-		__OnReqLogin(message, pSocket);
+		__OnReqRoomList(message, pSocket);
 	}
 	break;
 	}
@@ -60,22 +61,33 @@ void LobbySession::Handle(const ServerMessage::Move& message, ClientSocket* pSoc
 */
 
 
-void CLobbySession::__OnReqLogin(ServerMessage::MessageBase::ReqLogin& onPacket, ClientSocket* pSocket)
+void CLobbySession::__OnReqRoomList(ServerMessage::MessageBase::ReqRoomList& onPacket, ClientSocket* pSocket)
 {
-	const string& userName = onPacket.name();
-	CUserPool* userPoolref = CUserPool::GetInstnace();
-	CUser* pNewUser = nullptr;
-	int ret = 0;
-	if (userPoolref->CreateNewUser(userName, pNewUser) && pNewUser != nullptr)
+	const int nStartIdx = onPacket.idx();
+	int nEndIdx = nStartIdx + kShowRoomCnt;
+	int nEncodeCnt = nEndIdx - nStartIdx;
+	if (nEncodeCnt <= 0)
 	{
-		if (pNewUser->SetSocket(pSocket))
+		return;
+	}
+
+	if (nEndIdx >= kMaxRoomCnt)
+	{
+		nEndIdx = kMaxRoomCnt - 1;
+	}
+
+	ServerMessage::MessageBase_ResRoomList sendMessage;
+	sendMessage.set_currentidx(nStartIdx);
+	sendMessage.set_roominfocount(nEncodeCnt);
+	for (int i = nStartIdx; i < nEndIdx; ++i)
+	{
+		const auto& roomInfo = &m_rooms[i];
+		auto pPakcetRoomData = sendMessage.add_rooms();
+		if (pPakcetRoomData)
 		{
-			ret = 1;
+			pPakcetRoomData->set_name(roomInfo->strRoomName);
 		}
 	}
 
-
-	ServerMessage::MessageBase_ResLogin sendMessage;
-	sendMessage.set_res(ret);
 	pSocket->SendPacket(ServerMessage::MessageType::kResLogin, &sendMessage);
 }

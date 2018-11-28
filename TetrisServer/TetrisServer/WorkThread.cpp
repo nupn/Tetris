@@ -24,7 +24,7 @@ void WorkThread::Proc(HANDLE hComPort)
 
 void WorkThread::Run(HANDLE hComPort)
 {
-	ClientSocketPool* pSocketPool = ClientSocketPool::GetInstnace();
+	ClientSocketPool* pSocketPool = ClientSocketPool::GetInstance();
 	
 	while (1)
 	{

@@ -25,7 +25,7 @@ public:
 	void onPrevClick(cocos2d::Ref* pSender);
 	void onNextClick(cocos2d::Ref* pSender);
 	void menuCloseCallback(cocos2d::Ref* pSender);
-	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket) override;
+	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream) override;
 
 private:
 	CRoomListLayer* m_pRoomListLayer = nullptr;
