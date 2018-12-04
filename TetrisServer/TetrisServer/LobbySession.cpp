@@ -7,6 +7,13 @@
 CLobbySession::CLobbySession()
 {
 	m_rooms.resize(kMaxRoomCnt);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		char roomName[512];
+		sprintf(roomName, "RoomName %d", i);
+		m_rooms[i].strRoomName = roomName;
+	}
 }
 
 
@@ -78,7 +85,7 @@ void CLobbySession::__OnReqRoomList(ServerMessage::MessageBase::ReqRoomList& onP
 
 	ServerMessage::MessageBase_ResRoomList sendMessage;
 	sendMessage.set_currentidx(nStartIdx);
-	sendMessage.set_roominfocount(nEncodeCnt);
+	//sendMessage.set_roominfocount(nEncodeCnt);
 	for (int i = nStartIdx; i < nEndIdx; ++i)
 	{
 		const auto& roomInfo = &m_rooms[i];
@@ -89,5 +96,5 @@ void CLobbySession::__OnReqRoomList(ServerMessage::MessageBase::ReqRoomList& onP
 		}
 	}
 
-	pSocket->SendPacket(ServerMessage::MessageType::kResLogin, &sendMessage);
+	pSocket->SendPacket(ServerMessage::MessageType::kResRoomList, &sendMessage);
 }

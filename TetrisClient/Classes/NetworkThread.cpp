@@ -45,7 +45,7 @@ void CNetworkThread::Work()
 	m_pSocket.Connect(m_strIpAddress, m_nPort);
 
 
-	while (m_pSocket.GetPacket(m_pPackethandler))
+	while (m_pSocket.GetPacket(&m_pPackethandler))
 	{
 
 	}

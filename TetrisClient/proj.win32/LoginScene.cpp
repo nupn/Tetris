@@ -47,9 +47,9 @@ void CLoginScene::Handle(int nMessageType, protobuf::io::CodedInputStream* coded
 			Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]()->void
 			{
 				auto director = Director::getInstance();
-				auto scene = CLobbyScene::createScene();
+				CLobbyScene* scene = static_cast<CLobbyScene*>(CLobbyScene::createScene());
 
-				CNetworkThread::GetInstance()->SetPacketHandler((PacketHandler*)scene);
+				CNetworkThread::GetInstance()->SetPacketHandler(scene);
 				if (director != nullptr && scene != nullptr)
 				{
 					director->replaceScene(scene);

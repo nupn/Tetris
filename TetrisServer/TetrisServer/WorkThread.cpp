@@ -41,16 +41,24 @@ void WorkThread::Run(HANDLE hComPort)
 		}
 
 		ClientSocket* socket = pSocketPool->GetSocket(iocpKey);
-		if (pOverlappedEx->nRwMode == ClientSocket::READ_SOCKET)
+		if (socket)
 		{
-			socket->OnReceiveComplete(bytesTrans);
-			socket->ReadAndConsumeBuffer();
-			socket->OnReceive();
+			if (pOverlappedEx->nRwMode == ClientSocket::READ_SOCKET)
+			{
+				socket->OnReceiveComplete(bytesTrans);
+				socket->ReadAndConsumeBuffer();
+				socket->OnReceive();
+			}
+			else if (pOverlappedEx->nRwMode == ClientSocket::WRITE_SOCKET)
+			{
+				socket->OnSendComplete();
+				socket->FlushPacket();
+			}
 		}
-		else if (pOverlappedEx->nRwMode == ClientSocket::WRITE_SOCKET)
+		else
 		{
-			socket->OnSendComplete();
-			socket->FlushPacket();
+			printf("NULL Socket ");
+
 		}
 	}
 }

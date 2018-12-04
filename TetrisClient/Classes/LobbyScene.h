@@ -26,6 +26,9 @@ public:
 	void onNextClick(cocos2d::Ref* pSender);
 	void menuCloseCallback(cocos2d::Ref* pSender);
 	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream) override;
+	virtual void onEnter();
+
+private:
 
 private:
 	CRoomListLayer* m_pRoomListLayer = nullptr;

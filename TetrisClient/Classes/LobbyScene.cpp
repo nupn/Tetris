@@ -100,11 +100,7 @@ bool CLobbyScene::init()
 
 	m_pRoomListLayer = pRoomList;
 
-
-
-
-
-
+	
 	return true;
 }
 
@@ -121,16 +117,28 @@ void CLobbyScene::menuCloseCallback(Ref* pSender)
 
 void CLobbyScene::Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream)
 {
+
+	switch (nMessageType)
+	{
+	case ServerMessage::MessageType::kResRoomList:
+		ServerMessage::MessageBase::ResRoomList receiveMessage;
+		if (receiveMessage.ParseFromCodedStream(codedStream))
+		{
+			if (m_pRoomListLayer)
+			{
+				m_pRoomListLayer->OnRecevieRoomList(receiveMessage);
+			}
+		}
+
+
+
+		break;
+	}
+
 	if (!m_pChatLayer)
 	{
 		return;
 	}
-
-	Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]()->void
-	{
-		//m_pChatLayer->PushMessage(message.message());
-
-	});
 }
 
 
@@ -148,4 +156,13 @@ void CLobbyScene::onNextClick(cocos2d::Ref* pSender)
 	{
 		m_pRoomListLayer->NextPage();
 	}
+}
+
+void CLobbyScene::onEnter()
+{
+	Scene::onEnter();
+
+	ServerMessage::MessageBase::ReqRoomList sendMessage;
+	sendMessage.set_idx(0);
+	CNetworkThread::GetInstance()->SendPacket(ServerMessage::MessageType::kReqRoomList, &sendMessage);
 }

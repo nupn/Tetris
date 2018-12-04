@@ -1,9 +1,11 @@
 #pragma once
 #include "cocos2d.h"
+#include "..\..\protocol\ServerMessage.pb.h"
 #include <vector>
 
 using namespace cocos2d;
 using namespace std;
+using namespace google;
 
 struct RoomInfo
 {
@@ -32,6 +34,7 @@ public:
 
 	void NextPage();
 	void PrevPage();
+	void OnRecevieRoomList(ServerMessage::MessageBase::ResRoomList &receivePacket);
 
 private:
 	void _clearSellInfo();

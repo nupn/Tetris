@@ -19,7 +19,7 @@ public:
 
 	void PutPacket(ServerMessage::MessageType packetType, ::google::protobuf::Message* message);
 	void SendPacket(ServerMessage::MessageType packetType, ::google::protobuf::Message* message);
-	bool GetPacket(PacketHandler* pPacketHandle);
+	bool GetPacket(PacketHandler** pPacketHandle);
 	void FlushPacket();
 
 private:

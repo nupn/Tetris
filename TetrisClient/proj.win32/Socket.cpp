@@ -108,7 +108,7 @@ void Socket::__SendPacket()
 	m_nSendBuffUsed = 0;
 }
 
-bool Socket::GetPacket(PacketHandler* pPacketHandle)
+bool Socket::GetPacket(PacketHandler** pPacketHandle)
 {
 	int readLen = recv(m_hSocket, recvbuffer, BUF_SIZE - 1 - m_nRecvBuffUsed, 0);
 
@@ -144,7 +144,10 @@ bool Socket::GetPacket(PacketHandler* pPacketHandle)
 			m_nRecvBuffUsed -= MessageHeaderSize + messageHeader.size;
 		}
 
-		pPacketHandle->Handle(messageHeader.type, &payload_input_stream);
+		if ((*pPacketHandle) != nullptr)
+		{
+			(*pPacketHandle)->Handle(messageHeader.type, &payload_input_stream);
+		}
 
 		/*
 		switch (messageHeader.type)

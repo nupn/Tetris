@@ -15,13 +15,16 @@ CRoomListLayer::~CRoomListLayer()
 bool CRoomListLayer::init()
 {
 	_vecRoomInfos.clear();
-	_vecRoomInfos.resize(24);
+	_vecRoomInfos.resize(kMaxCapacity);
+	
+	/*
 	for (int i = 0; i < 24; ++i)
 	{
 		char roomName[256];
 		sprintf(roomName, "RoomName %d", i);
 		_vecRoomInfos[i].strRoomName = roomName;
 	}
+	*/
 	_nPage = 0;
 	_initCell();
 	_clearSellInfo();
@@ -213,4 +216,29 @@ void CRoomListLayer::_roomSelectCallback(Ref* pSender)
 			}
 		}
 	}
+}
+
+void CRoomListLayer::OnRecevieRoomList(ServerMessage::MessageBase::ResRoomList &receivePacket)
+{
+
+	const auto currentIdx = receivePacket.currentidx();
+	const int nCount = receivePacket.rooms_size();
+
+	_nPage = floor(currentIdx / kRoomCount);
+
+	for (int i = 0; i < kRoomCount; ++i)
+	{
+		int nIdx = currentIdx + i;
+		if (i < nCount && nIdx < kMaxCapacity)
+		{
+
+			const ServerMessage::MessageBase::ResRoomList::RoomInfo roomInfo = receivePacket.rooms(i);
+			_vecRoomInfos[nIdx].strRoomName = roomInfo.name();
+		}
+	}
+
+	Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]()->void
+	{
+		_updateCell();
+	});
 }
