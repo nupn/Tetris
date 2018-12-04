@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 			ErrorHandling("accept() error!");
 		}
 
-		ClientSocket* pSocket = pSocketPool->CreateSocket();
+		ClientSocketPtr pSocket = pSocketPool->CreateSocket();
 		pSocket->hClntSock = hClntSock;
 		memcpy(&(pSocket->clntAdr), &clntAdr, addrLen);
 		memset(&(pSocket->recvOoverlapped), 0, sizeof(OVERLAPPED));

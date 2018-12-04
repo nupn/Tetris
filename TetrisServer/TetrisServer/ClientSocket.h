@@ -14,6 +14,8 @@ struct OVERLAPPEDEX
 	int nRwMode;
 };
 
+
+typedef std::shared_ptr<ClientSocket> ClientSocketPtr;
 class ClientSocket
 {
 public:

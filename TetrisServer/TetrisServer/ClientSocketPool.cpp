@@ -15,21 +15,21 @@ ClientSocketPool::~ClientSocketPool()
 {
 }
 
-ClientSocket* ClientSocketPool::CreateSocket()
+ClientSocketPtr ClientSocketPool::CreateSocket()
 {
 	//serialobject ::interlockinterchange
 	std::lock_guard<std::mutex> lock(m_mutex);
-	ClientSocket* pSocket = new ClientSocket(m_uid);
+	ClientSocketPtr pSocket = make_shared<ClientSocket>(m_uid);
 	++m_uid;
 
 
-	AddSocket(pSocket);
+	__AddSocket(pSocket);
 
 	return pSocket;
 }
 
 // mutax Ãß°¡ 
-bool ClientSocketPool::AddSocket(ClientSocket* pSocket)
+bool ClientSocketPool::__AddSocket(ClientSocketPtr pSocket)
 {
 	auto iter = std::find_if(begin(m_vecSockets), end(m_vecSockets), [pSocket](auto& item) -> bool
 	{
@@ -68,7 +68,7 @@ bool ClientSocketPool::DelSocket(DWORD nCompletionKey)
 	return true;
 }
 
-ClientSocket* ClientSocketPool::GetSocket(DWORD nCompletionKey) const
+ClientSocketPtr ClientSocketPool::GetSocket(DWORD nCompletionKey) const
 {
 	auto iter = std::find_if(begin(m_vecSockets), end(m_vecSockets), [nCompletionKey](auto& item) -> bool
 	{

@@ -37,10 +37,17 @@ void WorkThread::Run(HANDLE hComPort)
 		if (ret != 1)
 		{
 			printf("Invalid ret %d\n", ret);
+			CloseSocket(iocpKey);
 			continue;
 		}
 
-		ClientSocket* socket = pSocketPool->GetSocket(iocpKey);
+		if (bytesTrans == 0)
+		{
+			CloseSocket(iocpKey);
+			continue;
+		}
+
+		ClientSocketPtr socket = pSocketPool->GetSocket(iocpKey);
 		if (pOverlappedEx->nRwMode == ClientSocket::READ_SOCKET)
 		{
 			socket->OnReceiveComplete(bytesTrans);
@@ -53,4 +60,15 @@ void WorkThread::Run(HANDLE hComPort)
 			socket->FlushPacket();
 		}
 	}
+}
+
+void WorkThread::CloseSocket(DWORD dwIOCPKey)
+{
+	ClientSocketPool* pSocketPool = ClientSocketPool::GetInstnace();
+	ClientSocketPtr socket = pSocketPool->GetSocket(dwIOCPKey);
+	if (socket != nullptr)
+	{
+		pSocketPool->DelSocket(dwIOCPKey);
+	}
+
 }

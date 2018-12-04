@@ -10,8 +10,8 @@ public:
 	~WorkThread();
 	
 	void Proc(HANDLE hComPort);
-
 	void Run(HANDLE hComPort);
+	void CloseSocket(DWORD dwIOCPKey);
 
 private:
 	shared_ptr<thread> m_pthread;

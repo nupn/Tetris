@@ -10,10 +10,9 @@ public:
 	ClientSocketPool();
 	virtual ~ClientSocketPool();
 
-	ClientSocket* CreateSocket();
-	bool AddSocket(ClientSocket* pSocket);
+	ClientSocketPtr CreateSocket();
 	bool DelSocket(DWORD nCompletionKey);
-	ClientSocket* GetSocket(DWORD nCompletionKey) const;
+	ClientSocketPtr GetSocket(DWORD nCompletionKey) const;
 
 	template<typename T>
 	void ForEach(T function) const {
@@ -24,8 +23,11 @@ public:
 		}
 	}
 
+private:
+	bool __AddSocket(ClientSocketPtr pSocket);
+
 	static mutex      m_mutex;
 	static int			m_uid;
 private:
-	vector<ClientSocket*> m_vecSockets;
+	vector<ClientSocketPtr> m_vecSockets;
 };
