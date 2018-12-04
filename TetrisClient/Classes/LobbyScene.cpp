@@ -119,7 +119,7 @@ void CLobbyScene::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void CLobbyScene::Handle(const ServerMessage::Chat& message)
+void CLobbyScene::Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream)
 {
 	if (!m_pChatLayer)
 	{
@@ -128,7 +128,7 @@ void CLobbyScene::Handle(const ServerMessage::Chat& message)
 
 	Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]()->void
 	{
-		m_pChatLayer->PushMessage(message.message());
+		//m_pChatLayer->PushMessage(message.message());
 
 	});
 }

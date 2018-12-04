@@ -63,30 +63,29 @@ void LobbySession::Handle(const ServerMessage::Move& message, ClientSocket* pSoc
 
 void CLoginSession::__OnReqLogin(ServerMessage::MessageBase::ReqLogin& onPacket, ClientSocket* pSocket)
 {
+	CUserPool* userPoolref = CUserPool::GetInstance();
+	if (userPoolref == nullptr)
+	{
+		return;
+	}
+
 	const string& userName = onPacket.name();
-	CUserPool* userPoolref = CUserPool::GetInstnace();
-	CUser* pNewUser = nullptr;
+	CUser* pNewUser = userPoolref->CreateNewUser(userName);
 	int ret = 0;
-	if (userPoolref->CreateNewUser(userName, pNewUser) && pNewUser != nullptr)
+	if (pNewUser)
 	{
 		if (pNewUser->SetSocket(pSocket))
 		{
-			ret = 1;
+			CLobbySession* pLobbySession = (CLobbySession*)CSessionPool::GetInstance()->GetLobbySession();
+			if (pLobbySession)
+			{
+				ret = 1;
+				pSocket->SetPacketHandler(pLobbySession);
+			}
 		}
 	}
 
-	auto pLobbySession = CSessionPool::GetInstnace()->GetLobbySession();
-	if (pLobbySession)
-	{
-		pSocket->SetPacketHandler(pLobbySession);
-	}
-	else
-	{
-
-	}
-	/*
 	ServerMessage::MessageBase_ResLogin sendMessage;
 	sendMessage.set_res(ret);
 	pSocket->SendPacket(ServerMessage::MessageType::kResLogin, &sendMessage);
-	*/
 }

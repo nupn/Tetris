@@ -120,7 +120,7 @@ void CTetrisScene::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void CTetrisScene::Handle(const ServerMessage::Chat& message)
+void CTetrisScene::Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream)
 {
 	if (!m_pChatLayer)
 	{
@@ -129,7 +129,7 @@ void CTetrisScene::Handle(const ServerMessage::Chat& message)
 
 	Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]()->void
 	{
-		m_pChatLayer->PushMessage(message.message());
+		//m_pChatLayer->PushMessage(message.message());
 
 	});
 }

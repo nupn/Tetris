@@ -1,9 +1,10 @@
 #pragma once
 
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include "..\Classes\ServerMessage.pb.h"
+#include "ServerMessage.pb.h"
 class ClientSocket;
 
+using namespace google;
 
 struct MessageHeader
 {
@@ -17,14 +18,7 @@ class PacketHandler
 public:
 	PacketHandler() = default;
 	virtual ~PacketHandler() = default;
-
-	virtual void Handle(const ServerMessage::Login& message)
-	{
-	}
-	virtual void Handle(const ServerMessage::Chat& message)
-	{
-	}
-	virtual void Handle(const ServerMessage::Move& message)
+	virtual void Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream)
 	{
 	}
 

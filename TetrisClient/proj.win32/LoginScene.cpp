@@ -1,6 +1,7 @@
 #include "LoginScene.h"
 #include "../proj.win32/LoginInputLayer.h"
-
+#include "NetworkThread.h"
+#include "LobbyScene.h"
 
 CLoginScene::CLoginScene()
 {
@@ -24,4 +25,38 @@ bool CLoginScene::init()
 	addChild(inputLayer);
 
 	return Scene::init();
+}
+
+void CLoginScene::Handle(int nMessageType, protobuf::io::CodedInputStream* codedStream)
+{
+	if (codedStream == nullptr)
+	{
+		return;
+	}
+
+	switch (nMessageType)
+	{
+	case ServerMessage::MessageType::kResLogin:
+	{
+		ServerMessage::MessageBase::ResLogin message;
+		if (false == message.ParseFromCodedStream(codedStream))
+			break;
+
+		if (message.res() > 0)
+		{
+			Director::getInstance()->getScheduler()->performFunctionInCocosThread([=]()->void
+			{
+				auto director = Director::getInstance();
+				auto scene = CLobbyScene::createScene();
+
+				CNetworkThread::GetInstance()->SetPacketHandler((PacketHandler*)scene);
+				if (director != nullptr && scene != nullptr)
+				{
+					director->replaceScene(scene);
+				}
+			});
+		}
+	}
+	break;
+	}
 }

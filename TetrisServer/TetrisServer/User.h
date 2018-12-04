@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 class ClientSocket;
 class CUser
 {
@@ -7,7 +8,9 @@ public:
 	~CUser();
 
 	bool SetSocket(ClientSocket* pSocket);
-
-	ClientSocket* _pSocket;
+	std::string GetName();
+private:
+	ClientSocket* _pSocket = nullptr;
+	std::string _strUserName;
 };
 

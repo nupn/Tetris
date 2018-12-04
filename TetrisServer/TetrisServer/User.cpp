@@ -22,3 +22,8 @@ bool CUser::SetSocket(ClientSocket* pSocket)
 
 	return false;
 }
+
+std::string CUser::GetName()
+{
+	return _strUserName;
+}

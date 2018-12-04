@@ -1,7 +1,9 @@
 #include "LoginInputLayer.h"
-#include "LobbyScene.h"
 #include "TextFieldKR.h"
+#include "NetworkThread.h"
 
+#include "..\..\protocol\ServerMessage.pb.h"
+using namespace google;
 
 CLoginInputLayer::CLoginInputLayer()
 {
@@ -62,10 +64,19 @@ bool CLoginInputLayer::init()
 
 void CLoginInputLayer::onMenuSelectCallback(Ref* pSender)
 {
+	TextFieldKR* pInputText = (TextFieldKR*)getChildByTag(123);
+	ServerMessage::MessageBase::ReqLogin sendMessage;
+	sendMessage.set_id(0);
+	sendMessage.set_name(pInputText->GetString());
+
+	CNetworkThread::GetInstance()->SendPacket(ServerMessage::MessageType::kReqLogin , &sendMessage);
+
+	/*
 	auto director = Director::getInstance();
 	auto scene = CLobbyScene::createScene();
 	if (director != nullptr && scene != nullptr)
 	{
 		director->replaceScene(scene);
 	}
+	*/
 }

@@ -2,6 +2,7 @@
 #include "string"
 #include "User.h"
 #include "Singletone.h"
+#include <vector>
 
 using namespace NPL;
 using namespace std;
@@ -12,11 +13,11 @@ public:
 	CUserPool();
 	virtual ~CUserPool();
 
-	bool CreateNewUser(string strUserName, CUser* pOutUser);
+	CUser* CreateNewUser(string strUserName);
 	void DeleteUser(string  strUserName, CUser* pOutUser);
 
 	bool FindUser(string strUserName, CUser* pOutUser);
-	void Lock();
-	void UnLock();
+private:
+	std::vector<CUser*> m_vecUserList;
 };
 

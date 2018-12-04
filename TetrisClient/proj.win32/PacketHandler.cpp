@@ -8,6 +8,7 @@ using namespace google;
 
 void PacketHandler::SendChatMsg(std::string& chatMsg)
 {
+	/*
 	ServerMessage::Chat sendMessage;
 	sendMessage.set_dst_id(10);
 	sendMessage.set_name("aas");
@@ -16,5 +17,5 @@ void PacketHandler::SendChatMsg(std::string& chatMsg)
 	MessageHeader messageHeader;
 	messageHeader.size = sendMessage.ByteSize();
 	messageHeader.type = ServerMessage::CHAT;
-
+	*/
 }

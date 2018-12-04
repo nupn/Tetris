@@ -102,8 +102,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto scene = CLoginScene::createScene();
 	//CNetworkThread::GetMutable().Start("127.0.0.1", 19897, this);
 	
-	CNetworkThread& net = boost::serialization::singleton<CNetworkThread>::get_mutable_instance();
-	net.Start("127.0.0.1", 19897, dynamic_cast<PacketHandler*>(scene));
+	CNetworkThread* net = CNetworkThread::GetInstance();
+	net->Start("127.0.0.1", 19897, dynamic_cast<PacketHandler*>(scene));
     director->runWithScene(scene);
 
 
