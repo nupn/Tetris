@@ -28,14 +28,13 @@ message MessageBase {
 	
 	message ResRoomList {
 		int32 currentIdx = 1;
-		int32 roomInfoCount = 2;
 		
 		message RoomInfo
 		{
 			string name = 2;
 		}
 		
-		repeated RoomInfo rooms = 3;
+		repeated RoomInfo rooms = 2;
 	}
 	
 	

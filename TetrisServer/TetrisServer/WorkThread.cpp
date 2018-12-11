@@ -4,6 +4,7 @@
 #include "WorkThread.h"
 #include "Protocol.h"
 #include "LobbySession.h"
+#include "ClientSocket.h"
 
 WorkThread::WorkThread()
 {
@@ -37,11 +38,18 @@ void WorkThread::Run(HANDLE hComPort)
 		if (ret != 1)
 		{
 			printf("Invalid ret %d\n", ret);
+			CloseSocket(iocpKey);
 			continue;
 		}
 
-		ClientSocket* socket = pSocketPool->GetSocket(iocpKey);
-		if (socket)
+		if (bytesTrans == 0)
+		{
+			CloseSocket(iocpKey);
+			continue;
+		}
+
+		ClientSocketPtr socket = pSocketPool->GetSocket(iocpKey);
+		if (socket!= nullptr)
 		{
 			if (pOverlappedEx->nRwMode == ClientSocket::READ_SOCKET)
 			{
@@ -61,4 +69,15 @@ void WorkThread::Run(HANDLE hComPort)
 
 		}
 	}
+}
+
+void WorkThread::CloseSocket(DWORD dwIOCPKey)
+{
+	ClientSocketPool* pSocketPool = ClientSocketPool::GetInstance();
+	//ClientSocketPtr socket = pSocketPool->GetSocket(dwIOCPKey);
+	//if (socket != nullptr)
+	{
+		pSocketPool->DelSocket(dwIOCPKey);
+	}
+
 }
