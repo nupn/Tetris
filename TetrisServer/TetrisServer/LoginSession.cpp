@@ -74,8 +74,9 @@ void CLoginSession::__OnReqLogin(ServerMessage::MessageBase::ReqLogin& onPacket,
 	int ret = 0;
 	if (pNewUser)
 	{
-		if (pNewUser->SetSocket(pSocket))
+		if (pNewUser->SetSocket(pSocket) && pSocket->GetUser() == nullptr)
 		{
+			pSocket->SetUser(pNewUser);
 			CLobbySession* pLobbySession = (CLobbySession*)CSessionPool::GetInstance()->GetLobbySession();
 			if (pLobbySession)
 			{

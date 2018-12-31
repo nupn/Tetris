@@ -4,7 +4,7 @@
 #include "Structs.h"
 #include "PacketBase.h"
 #include "Protocol.h"
-
+#include "User.h"
 using namespace NPL;
 
 
@@ -42,10 +42,14 @@ public:
 	void ReadAndConsumeBuffer();
 	void SetPacketHandler(PacketHandler* pPacketHandler);
 
+	void SetUser(CUser* pUser);
+	CUser* GetUser();
+
 private:
 void __SendPacket();
 
 public:
+	CUser* m_pUser = nullptr;
 
 	SOCKET hClntSock;
 	SOCKADDR_IN clntAdr;

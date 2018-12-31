@@ -64,6 +64,7 @@ bool CLoginInputLayer::init()
 
 void CLoginInputLayer::onMenuSelectCallback(Ref* pSender)
 {
+
 	TextFieldKR* pInputText = (TextFieldKR*)getChildByTag(123);
 	ServerMessage::MessageBase::ReqLogin sendMessage;
 	sendMessage.set_id(0);

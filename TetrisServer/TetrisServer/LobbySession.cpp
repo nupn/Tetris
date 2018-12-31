@@ -2,6 +2,7 @@
 #include "LobbySession.h"
 
 #include "ClientSocketPool.h"
+#include "GameSessionTable.h"
 #include "UserPool.h"
 
 CLobbySession::CLobbySession()
@@ -33,13 +34,23 @@ void CLobbySession::Handle(int nMessageType, protobuf::io::CodedInputStream* cod
 	{
 	case ServerMessage::MessageType::kReqRoomList:
 	{
-		ServerMessage::MessageBase::ReqRoomList message;
-		if (false == message.ParseFromCodedStream(codedStream))
-			break;
-		
-		__OnReqRoomList(message, pSocket);
+		__OnReqRoomList(codedStream, pSocket);
 	}
 	break;
+
+	case ServerMessage::MessageType::kReqCreateRoom:
+	{
+		__OnReqCreateRoom(codedStream, pSocket);
+	}
+	break;
+
+
+	case ServerMessage::MessageType::kReqEnterRoom:
+	{
+		__OnReqEnterRoom(codedStream, pSocket);
+	}
+	break;
+
 	}
 }
 
@@ -68,9 +79,17 @@ void LobbySession::Handle(const ServerMessage::Move& message, ClientSocket* pSoc
 */
 
 
-void CLobbySession::__OnReqRoomList(ServerMessage::MessageBase::ReqRoomList& onPacket, ClientSocket* pSocket)
+void CLobbySession::__OnReqRoomList(protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket)
 {
-	const int nStartIdx = onPacket.idx();
+	ServerMessage::MessageBase::ReqRoomList message;
+	if (!message.ParseFromCodedStream(codedStream))
+	{
+		return;
+	}
+
+
+
+	const int nStartIdx = message.idx();
 	int nEndIdx = nStartIdx + kShowRoomCnt;
 	int nEncodeCnt = nEndIdx - nStartIdx;
 	if (nEncodeCnt <= 0)
@@ -92,9 +111,77 @@ void CLobbySession::__OnReqRoomList(ServerMessage::MessageBase::ReqRoomList& onP
 		auto pPakcetRoomData = sendMessage.add_rooms();
 		if (pPakcetRoomData)
 		{
+			pPakcetRoomData->set_nroomid(roomInfo->nRoomId);
 			pPakcetRoomData->set_name(roomInfo->strRoomName);
 		}
 	}
 
 	pSocket->SendPacket(ServerMessage::MessageType::kResRoomList, &sendMessage);
+}
+void CLobbySession::__OnReqCreateRoom(protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket)
+{
+	ServerMessage::MessageBase::ReqCreateRoom message;
+	if (!message.ParseFromCodedStream(codedStream))
+	{
+		return;
+	}
+
+	string strRoomName = message.strroomname();
+	int nSlotIdx = message.nroomslotidx();
+	int nRoomSize = m_rooms.size();
+	if (nSlotIdx < 0 || nSlotIdx >= nRoomSize)
+	{
+		return;
+	}
+
+	auto& roomInfo = m_rooms[nSlotIdx];
+	if (roomInfo.nRoomId != -1)
+	{
+		return;
+	}
+
+	roomInfo.nRoomId = __GetRoomId();
+	roomInfo.strRoomName = strRoomName;
+
+	auto sessionTable = CGameSessionTable::GetInstance();
+	if (!sessionTable)
+	{
+		return;
+	}
+
+
+	auto pUser = pSocket->GetUser();
+	if (pUser)
+	{
+		auto pSession = sessionTable->CreateSession();
+		pSocket->SetPacketHandler(pSession);
+		pSession->EnterUser(pUser);
+	}
+}
+
+void CLobbySession::__OnReqEnterRoom(protobuf::io::CodedInputStream* codedStream, ClientSocket* pSocket)
+{
+	ServerMessage::MessageBase::ReqEnterRoom message;
+	if (!message.ParseFromCodedStream(codedStream))
+	{
+		return;
+	}
+
+	auto sessionTable = CGameSessionTable::GetInstance();
+	if (!sessionTable)
+	{
+		return;
+	}
+
+	auto pUser = pSocket->GetUser();
+	if (pUser)
+	{
+		sessionTable->EnterUser(pUser);
+	}
+
+}
+
+unsigned int CLobbySession::__GetRoomId()
+{
+	return m_nRoomId++;
 }

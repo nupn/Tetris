@@ -9,6 +9,7 @@ using namespace google;
 
 struct RoomInfo
 {
+	int		nRoomId = -1;
 	string strRoomName = "None";
 
 };

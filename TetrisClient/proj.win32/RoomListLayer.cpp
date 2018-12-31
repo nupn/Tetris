@@ -1,4 +1,5 @@
 #include "RoomListLayer.h"
+#include "NetworkThread.h"
 #include "TetrisScene.h"
 
 
@@ -207,13 +208,20 @@ void CRoomListLayer::_roomSelectCallback(Ref* pSender)
 		int nDataIdx = _nPage * kRoomCount + nTag;
 		if (nDataIdx >= 0 && nDataIdx <= _vecRoomInfos.size())
 		{
-			//_vecRoomInfos[i];
-			auto director = Director::getInstance();
+			auto& roomInfo = _vecRoomInfos[nDataIdx];
+			if (roomInfo.nRoomId > 0)
+			{
+				ServerMessage::MessageBase::ReqEnterRoom msgEnterRoom;
+				msgEnterRoom.set_nroomid(roomInfo.nRoomId);
+				CNetworkThread::GetInstance()->SendPacket(ServerMessage::MessageType::kReqEnterRoom, &msgEnterRoom);
+			}
+
+			/*auto director = Director::getInstance();
 			auto scene = CTetrisScene::createScene();
 			if (director != nullptr && scene != nullptr)
 			{
 				director->replaceScene(scene);
-			}
+			}*/
 		}
 	}
 }

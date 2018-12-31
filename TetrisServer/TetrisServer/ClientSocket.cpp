@@ -217,3 +217,13 @@ void ClientSocket::SetPacketHandler(PacketHandler* pPacketHandler)
 {
 	m_pPacketHandler = pPacketHandler;
 }
+
+void ClientSocket::SetUser(CUser* pUser)
+{
+	m_pUser = pUser;
+}
+
+CUser* ClientSocket::GetUser()
+{
+	return m_pUser;
+}

@@ -151,6 +151,8 @@
     <ClCompile Include="ClientSocket.cpp" />
     <ClCompile Include="ClientSocketPool.cpp" />
     <ClCompile Include="Constants.cpp" />
+    <ClCompile Include="GameSession.cpp" />
+    <ClCompile Include="GameSessionTable.cpp" />
     <ClCompile Include="LobbySession.cpp" />
     <ClCompile Include="LoginSession.cpp" />
     <ClCompile Include="main.cpp" />
@@ -167,6 +169,8 @@
     <ClInclude Include="..\..\protocol\ServerMessage.pb.h" />
     <ClInclude Include="ClientSocket.h" />
     <ClInclude Include="ClientSocketPool.h" />
+    <ClInclude Include="GameSession.h" />
+    <ClInclude Include="GameSessionTable.h" />
     <ClInclude Include="LobbySession.h" />
     <ClInclude Include="LoginSession.h" />
     <ClInclude Include="PacketBase.h" />

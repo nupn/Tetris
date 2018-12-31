@@ -8,6 +8,17 @@ enum MessageType {
 	
 	kReqRoomList = 2;
 	kResRoomList = 3;
+	
+	kReqCreateRoom = 4;
+	kResCreateRoom = 5;
+	
+	kReqEnterRoom = 6;
+	kResEnterRoom = 7;
+	
+	kReqLeaveRoom = 8;
+	kResLeaveRoom = 9;
+	
+	kResDestoryRoom = 10;
 }
 
 
@@ -31,10 +42,29 @@ message MessageBase {
 		
 		message RoomInfo
 		{
+			int32 nRoomId = 1;
 			string name = 2;
 		}
 		
 		repeated RoomInfo rooms = 2;
+	}
+	
+	message ReqCreateRoom{
+		string strRoomName = 1;
+	}
+	
+	message ResCreateRoom{
+		int32 nRoomId = 1;
+		string strRoomName = 2;
+	}
+	
+	message ReqEnterRoom{
+		int32 nRoomId =1;
+	}
+	
+	message ResEtnerRoom{
+		int32 nRoomId = 1;
+		string strRoomName = 2;
 	}
 	
 	
